@@ -57,32 +57,13 @@ typedef enum {
     AUTO_WAITING
 } MacroStateAutonomous_s;
 
-typedef enum {
-    AUTO_START_2 = 0,
-    ZERO_MOTORS_2,
-    GET_LIDAR_Y_2,
-    getToNewPos_2,
-    getPos_2,
-    VerifyPos_2,
-    DRIVE_TO_DIG_2,
-    PLOW_2,
-    DO_DIG_2,
-    DRIVE_TO_DUMP_2,
-    RETURN_TO_CENTER,
-    //getCurrentPos,
-    DO_DUMP_2,
-    AUTO_WAITING_2
-} MacroStateAutonomousTwo_s;
 
-void incrementMacroState();
-void incrementMacroStateTwo();
-bool startingMacro();
+
 
 void macroComplete(int macroID);
 void configureMacro(int macroID, int macroData);
 void runMacro();
 void stopMacro();
-bool dumbMacro();
 void handleCANmacro(short macroIndex, short macroData);
 
 bool isMacroRunning();
@@ -96,9 +77,6 @@ void setMotorState(bool state);
 
 void resetAutonomousSystem(void);
 
-
-void testStart();
-void testFull();
 
 
 bool goToLocation(point_t _thatSpot);

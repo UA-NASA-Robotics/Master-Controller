@@ -3,10 +3,11 @@
 #include <stdlib.h>
 #include "Definitions.h"
 #include "CANFastTransfer.h"
+#include "CompairitorMethods.h"
 #include "Timers.h"
 #include "Algorithms.h"
 #include "LinkedList.h"
-#include "Heading.h"
+#include "Telemetry.h"
 #include <math.h>
 #include <stdlib.h>
 #include "RockDetection.h"
@@ -18,7 +19,6 @@
 //                      DEFINITIONS
 //*********************************************************
 
-#define Timeout                     timerDone(&TimeOut)
 #define CENTER_DRIVE_DISTANCE       50   //DISTANCE FROM STARTING TO CENTER OF ARENA
 #define MIGRATION_DISTANCE_DIGGING  350
 #define MIGRATION_DISTANCE_DUMPING  350
@@ -29,13 +29,11 @@
 #define PointToDig                 (point_t){650,200}
 
 
-bool compairPointTalVal(point_t _pointA, point_t _pointB, int _tolVal);
+
 #define START_INFO_DIST_MASK  0x7FFF
 #define StartInfo_Side_Mask  0x8000     // MSB = 1 (robot is in front of the master lider): MAB = 0 (Robot is in front of the slave Lidar)
-#define ToleranceVal    15
-bool compairPoint(point_t _pointA, point_t _pointB);
 
-
+ 
 
 
 bool autoWaiting = false;
@@ -49,12 +47,6 @@ point_t DIGGING_POINT = PointToDig;
 point_t DestinationPoint = PointToDig;
 const point_t COLLECTION_BIN_POINT = {50, 50};
 
-void incrementMacroState() {
-    MacroState++;
-}
-
-int InitialStartDataMaster = 0, InitialStartDataSlave = 0;
-polar_t InitalMasterPolar, InitalSlavePolar;
 void setWaiter(bool(*_waitingOn)());
 bool(*waitingOn)();
 bool waiting = false;
@@ -63,15 +55,15 @@ bool(*ConfiguredMacro)();
 bool runningMacroData = 0;
 bool MacroRunning = false;
 void(*subMacro)();
-void getRobotPosition();
+
 bool isWaiting();
 bool motorsDone();
 bool gyrosDone();
-//bool isMotorsDone();
-//bool isGyrosDone();
 bool noWaiting();
-bool compairPoint(point_t _pointA, point_t _pointB);
-bool compairHeading(int headingA, int headingB);
+
+void getRobotPosition();
+
+void initTestFollowPath();
 bool testFollowPathMacro();
 bool goToDestination(LL_t *pathList);
 bool followPathMacro(point_t _destination);
@@ -79,32 +71,21 @@ bool goToSpot(double heading, double distance);
 
 bool gyroState = true, motorState = true;
 
-void testStart() {
-    //setExternalMacro(4, 0);
-    waiting = false;
-
-
-}
-
-void testFull() {
-    //setExternalMacro(2, 0);
-    waiting = false;
-}
-timers_t LidarComsTimeOut, comsWait;
-
-void initMacroTimers() {
-    setTimerInterval(&LidarComsTimeOut, 500);
-    setTimerInterval(&comsWait, 50);
-}
+LL_t *RobotPath;
+point_t startPoint;
+point_t endPoint;
+waypoint_t *currentWaypoint;
+bool homewardBound = false;
 
 void handleCANmacro(short macroIndex, short macroData) {
-    setTimerInterval(&clearMacroTimer, 700);
-    setTimerInterval(&ClearTimer, 100);
-    resetTimer(&clearMacroTimer);
-    resetTimer(&ClearTimer);
+   
+    
+    /* Give RouterCard a confirmation that the packet was received*/
     ToSendCAN(CAN_COMMAND_INDEX, macroIndex);
     sendDataCAN(ROUTER_ADDRESS);
-    setMacroSafety(true);
+    setMacroSafety(true); 
+    setTimerInterval(&clearMacroTimer, 700);
+    setTimerInterval(&ClearTimer, 100);
     switch (macroIndex) {
         case MACRO_CLEAR:
             sendMacroClear();
@@ -149,77 +130,49 @@ void handleCANmacro(short macroIndex, short macroData) {
             //resetAutonomousSystem();
             break;
         case START_CENTER:
-            MacroState = START;
-            ConfiguredMacro = startingMacro;
-            MacroRunning = true;
             break;
         case FULL_DIGGING:
             MacroRunning = true;
-            while (PozyxFT.ReceivedDataFlags[1] != true) {
-                receiveData(&PozyxFT);
-                delay(1000);
+            int i;
+            
+            for(i=0;i<2;i++){
+                if(PozyxFT.ReceivedDataFlags[1] != true) {
+                    receiveData(&PozyxFT);
+                    delay(1000);
+                }else{i=2;}
             }
+            /* 
+             * Assume we are in one of four positions here when Starting this macro
+             * 0, 90, 180, 270 */
+             
             CalcInicialHeading();
             MacroRunning = true;
-
-            while (!goToLocation(PointToDig));
-            //ConfiguredMacro = goToLocation;
 
             break;
         case FULL_AUTO_2:
             MacroRunning = true;
             while (PozyxFT.ReceivedDataFlags[1] != true) {
                 receiveData(&PozyxFT);
-                delay(1000);
+                //delay(1000);
             }
             CalcInicialHeading();
             MacroRunning = true;
+            initTestFollowPath();
             ConfiguredMacro = testFollowPathMacro;
 
             break;
         case EMPTY_7:
-            MacroRunning = true;
-            setMotorMacro(dumbMac1, 0);
-            setWaiter(motorsDone);
-            while (!isWaiting() && updateCanMACROcoms());
-            stopMacro();
+            
             break;
         case EMPTY_6:
-            MacroRunning = true;
-            setGyroMacro(ROTATION_COMMAND, -90);
-            setWaiter(gyrosDone);
-            setGyroState(false);
-            while (!isWaiting() && updateCanMACROcoms());
-            setMotorMacro(dumbMac2, 0);
-            setWaiter(motorsDone);
-            while (!isWaiting() && updateCanMACROcoms());
-            stopMacro();
+            
             break;
         case EMPTY_5:
-            MacroRunning = true;
-            setGyroMacro(ROTATION_COMMAND, 90);
-            setWaiter(gyrosDone);
-            setGyroState(false);
-            while (isWaiting() && updateCanMACROcoms());
-            setMotorMacro(dumbMac2, 0);
-            setWaiter(motorsDone);
-            while (isWaiting() && updateCanMACROcoms());
-            stopMacro();
+            
             break;
         case EMPTY_4:
-            MacroRunning = true;
-            setGyroMacro(ROTATION_COMMAND, 180);
-            setWaiter(gyrosDone);
-            setGyroState(false);
-            while (isWaiting() && updateCanMACROcoms());
-            setMotorMacro(dumbMac2, 0);
-            setWaiter(motorsDone);
-            while (isWaiting() && updateCanMACROcoms());
-            stopMacro();
-            //configureMacro(macroIndex,0);
-            //ConfiguredMacro = testFollowPathMacro;
-            //MacroRunning = true;
-            //goToLocation((point_t){200,300});
+           
+            
             break;
     }
 }
@@ -236,91 +189,30 @@ void runMacro() {
     }
 }
 
-bool dumbMacro() {
-    if (timerDone(&clearMacroTimer)) {
-        LED3 ^= 1;
-        LED4 ^= 1;
-        sendMacroDone();
-    }
-    return false;
-}
-
 void macroComplete(int macroID) {
-    switch (macroID) {
-        case STARTING_CENTER:
-        {
-            MacroRunning = false;
-            ConfiguredMacro = NULL;
-            break;
-        }
-        case FULL_AUTONOMY:
-        {
-            MacroRunning = false;
-            ConfiguredMacro = NULL;
-            break;
-        }
-    }
-
     ConfiguredMacro = NULL;
     MacroRunning = false;
 }
 
 void stopMacro() {
     setMacroSafety(false);
-    ConfiguredMacro = NULL;
+    macroComplete(0);
     waiting = false;
     setWaiter(NULL);
     setGyroState(DONE);
     setMotorState(DONE);
-    MacroRunning = false;
-
 }
 MacroStateAutonomous_s autoState = AUTO_START;
-MacroStateAutonomousTwo_s autoStateTwo = AUTO_START;
 bool EXTRA_STEP_INSERTED = false;
 
-void incrementAutonomousStateTwo() {
-    autoStateTwo++;
-    if (autoStateTwo > GET_LIDAR_Y_2) {
-        autoStateTwo = DRIVE_TO_DIG_2;
-    }
-}
+
 
 void resetAutonomousSystem(void) {
     autoState = AUTO_START;
 }
 
-void resetAutonomousSystemTwo(void) {
-    autoStateTwo = AUTO_START_2;
-}
-timers_t receive;
-#define CentralPoint (point_t){162,170}
-double startHeading;
 
-bool startingMacro() {
-    startHeading = getHeading();
-    if (startHeading == 270) {
-        setGyroMacro(ROTATION_COMMAND, (int) CalculateHeading(getLocation(), CentralPoint));
-        setWaiter(gyrosDone);
-        while (!isWaiting() && updateCanMACROcoms());
-    } else if (startHeading == 180) {
-        setMotorMacro(ENCODER_COMMAND, 165);
-        setWaiter(motorsDone);
-        while (!isWaiting() && updateCanMACROcoms());
 
-    } else if (startHeading == 180) {
-        setMotorMacro(ENCODER_COMMAND, 165);
-        setWaiter(motorsDone);
-        while (!isWaiting() && updateCanMACROcoms());
-
-    }
-    return false;
-}
-LL_t *RobotPath;
-point_t startPoint;
-point_t endPoint;
-waypoint_t *currentWaypoint;
-bool homewardBound = false;
 
 bool autonomousMacro() {
     switch (autoState) {
@@ -333,19 +225,11 @@ bool autonomousMacro() {
              * if(we need to return home(hopper full)
              *      returnHomeMacro();
              * else
-             * 
+             *      let's go digging
              */
 
-            CalcInicialHeading();
-
-            //            if (1) {
-            //                LL_push(robotDistinationPath, &COLLECTION_BIN_POINT);
-            //                goToDestination(robotDistinationPath);
-            //            } else {
-            //            LL_push(robotDistinationPath, &DIGGING_POINT);
-            //            if(goToDestination(robotDistinationPath))
-            autoState = DIG_MATERIAL;
-            //}
+            CalcInicialHeading(); 
+            autoState = TRAVELING;
 
             break;
         case TRAVELING:
@@ -407,7 +291,11 @@ bool autonomousMacro() {
 }
 LL_t *SquarePath;
 PathNode p1, p2, p3, p4;
-
+void initTestFollowPath()
+{
+    if(SquarePath != NULL)
+    LL_clear(SquarePath);
+}
 bool testFollowPathMacro() {
     if (SquarePath != NULL && SquarePath->size > 0) {
         if (goToDestination(SquarePath))
@@ -488,10 +376,10 @@ bool followPathMacro(point_t _destination) {
                 currentWaypoint = (waypoint_t*) LL_first(RobotPath);
                 setHeadingWaypoint(getLocation());
             } else {
-
+                LL_destroy(RobotPath);
                 /* Have we reach our destination */
                 //if (!compairPoint(DestinationPoint, COLLECTION_BIN_POINT)) {
-                while (goToLocation(_destination) && updateCanMACROcoms());
+               //while (goToLocation(_destination) && updateCanMACROcoms());
                     //return true;
                     //                } else {
                     TravelState = LegDone;
@@ -541,30 +429,17 @@ double myHeadingDifferenc;
 int lastPos = 0;
 timers_t DataAge;
 point_t krazPoint;
+point_t tempPoint;
 bool goToLocation(point_t _thatSpot) {
-    //    setTimerInterval(&DataAge, 800);
-    //    while (PozyxFT.ReceivedDataFlags[1] != true) {
-    //        receiveData(&PozyxFT);
-    //        delay(1000);
-    //    }
-    //    CalcInicialHeading();
-    //    //double myHeading = CalculateHeading(_thatSpot, getLocation());
-    //    while (1) {
-    if (ReceiveDataCAN()) {
-        if (getNewDataFlagStatus(1 << CAN_COMMAND_INDEX)) {
-            //if(lastCommandID != getCANFastData(CAN_COMMAND_INDEX) )
-            // {
 
-            
-            handleCANmacro(getCANFastData(CAN_COMMAND_INDEX), getCANFastData(CAN_COMMAND_DATA_INDEX));
-
-        }
-    }
+    if( !getMacroSafety())
+        return false;
     updateFTdata();
 
 
-    //_thatSpot = (point_t){200, 200};
-    if (compairPoint(_thatSpot, getLocation())) {
+
+    tempPoint = getLocation();
+    if (compairPoint(_thatSpot, tempPoint)) {
         setWaiter(NULL);
         return true;
 
@@ -615,8 +490,8 @@ bool goToLocation(point_t _thatSpot) {
             requestMotorData(RightMotor.ID, ENCODER_POSITION_REQUESTED);
             requestMotorData(LeftMotor.ID, ENCODER_POSITION_REQUESTED);
         }
-        if ((RightMotor.Position + LeftMotor.Position) / 2 != lastPos && (RightMotor.Position + LeftMotor.Position) / 2 > 1) {
-
+        if ((RightMotor.Position + LeftMotor.Position) / 2 != lastPos && (RightMotor.Position + LeftMotor.Position) / 2 > 1) 
+        {
             lastPos = (RightMotor.Position + LeftMotor.Position) / 2;
         }
 
@@ -642,7 +517,7 @@ bool goToSpot(double heading, double distance) {
 
 bool goToDumLocation() {
     point_t myLocation = getLocation();
-    if (!compairPointTalVal(myLocation, COLLECTION_BIN_POINT, 5)) {
+    if (!compairPoint_TalVal(myLocation, COLLECTION_BIN_POINT, 5)) {
         goToLocation(COLLECTION_BIN_POINT);
     }
     /* Set the Heading be facing the bucket toward the collection bin */
@@ -697,32 +572,8 @@ bool gyrosDone() {
     //gyroState = DONE;
     return state;
 }
-//bool isMotorsDone()
-//{
-//    return motorState;
-//}
-//
-//bool isGyrosDone()
-//{
-//    return motorState;
-//}
-
 bool noWaiting() {
     return DONE;
 }
 
 
-#define HeadingToleranceVal    9
-
-bool compairHeading(int headingA, int headingB) {
-    return (abs(headingA - headingB) < HeadingToleranceVal);
-}
-
-bool compairPoint(point_t _pointA, point_t _pointB) {
-    return (abs(_pointA.x - _pointB.x) < ToleranceVal && abs(_pointA.y - _pointB.y) < ToleranceVal);
-}
-
-bool compairPointTalVal(point_t _pointA, point_t _pointB, int _tolVal) {
-    return (abs(_pointA.x - _pointB.x) < _tolVal && abs(_pointA.y - _pointB.y) < _tolVal);
-
-}

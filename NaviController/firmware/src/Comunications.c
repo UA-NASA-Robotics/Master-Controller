@@ -81,6 +81,7 @@ void setMacroSafety(bool state) {
 }
 
 bool getMacroSafety() {
+    updateCanMACROcoms();
     return SafeForMacros;
 }
 
@@ -88,6 +89,7 @@ bool updateCanMACROcoms() {
     ReceiveDataCAN();
     if (getNewDataFlagStatus(1 << CAN_COMMAND_INDEX) && getCANFastData(CAN_COMMAND_INDEX) == 0) {
         setMacroSafety(false);
+        handleCANmacro(getCANFastData(CAN_COMMAND_INDEX), getCANFastData(CAN_COMMAND_DATA_INDEX));
         return false;
     }
     setMacroSafety(true);
