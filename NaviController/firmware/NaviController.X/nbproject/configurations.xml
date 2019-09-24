@@ -9,6 +9,10 @@
           <itemPath>../src/LinkedList.h</itemPath>
           <itemPath>../src/CompairitorMethods.h</itemPath>
         </logicalFolder>
+        <logicalFolder name="f5" displayName="Locolization" projectFiles="true">
+          <itemPath>../src/Pozyx.h</itemPath>
+          <itemPath>../src/Telemetry.h</itemPath>
+        </logicalFolder>
         <logicalFolder name="f2" displayName="MotorSystems" projectFiles="true">
           <itemPath>../src/Motor.h</itemPath>
           <itemPath>../src/MotorDefinitions.h</itemPath>
@@ -55,9 +59,7 @@
         <itemPath>../src/Definitions.h</itemPath>
         <itemPath>../src/Macros.h</itemPath>
         <itemPath>../src/Comunications.h</itemPath>
-        <itemPath>../src/Pozyx.h</itemPath>
         <itemPath>../src/app.h</itemPath>
-        <itemPath>../src/Telemetry.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f1" displayName="framework" projectFiles="true">
         <logicalFolder name="f1" displayName="driver" projectFiles="true">
@@ -135,6 +137,10 @@
           <itemPath>../src/LinkedList.c</itemPath>
           <itemPath>../src/CompairitorMethods.c</itemPath>
         </logicalFolder>
+        <logicalFolder name="f5" displayName="Locolization" projectFiles="true">
+          <itemPath>../src/Pozyx.c</itemPath>
+          <itemPath>../src/Telemetry.c</itemPath>
+        </logicalFolder>
         <logicalFolder name="f2" displayName="MotorSystems" projectFiles="true">
           <itemPath>../src/Motor.c</itemPath>
           <itemPath>../src/PID.c</itemPath>
@@ -199,10 +205,8 @@
         <itemPath>../src/CANFastTransfer.c</itemPath>
         <itemPath>../src/Macros.c</itemPath>
         <itemPath>../src/Comunications.c</itemPath>
-        <itemPath>../src/Pozyx.c</itemPath>
         <itemPath>../src/main.c</itemPath>
         <itemPath>../src/app.c</itemPath>
-        <itemPath>../src/Telemetry.c</itemPath>
       </logicalFolder>
       <logicalFolder name="f1" displayName="framework" projectFiles="true">
         <logicalFolder name="f1" displayName="driver" projectFiles="true">
@@ -288,7 +292,7 @@
         <property key="enable-unroll-loops" value="false"/>
         <property key="exclude-floating-point" value="false"/>
         <property key="extra-include-directories"
-                  value="../src;../src/system_config/default;../src/default;../../../../../framework;../src/system_config/default/framework"/>
+                  value="../src;../src/system_config/default;../src/default;../src/system_config/default/framework;../../../../../framework"/>
         <property key="generate-16-bit-code" value="false"/>
         <property key="generate-micro-compressed-code" value="false"/>
         <property key="isolate-each-function" value="true"/>

@@ -7,7 +7,9 @@
 
 #ifndef MACROS_H
 #define	MACROS_H
-
+#include <stdlib.h>
+#include <math.h>
+#include <stdbool.h>
 #include "Definitions.h"
 #include "FastTransfer.h"
 #include "Comunications.h"
@@ -37,26 +39,6 @@ typedef enum {
 
 } MacroList_t;
 
-typedef enum {
-    isSTART = 0,
-    START,
-    STEP1,
-    STEP2,
-    STEP3,
-    STEP4,
-    STEP5,
-    END,
-    WAITING
-} MacroState_s;
-
-typedef enum {
-    AUTO_START = 0,
-    TRAVELING,
-    DIG_MATERIAL,
-    DEPOSIT_MATERIAL,
-    AUTO_WAITING
-} MacroStateAutonomous_s;
-
 
 
 
@@ -72,14 +54,9 @@ bool autonomousMacroTwo();
 bool autonomousMacro();
 void setExternalMacro(int macroIndex, int commandData);
 
-void setGyroState(bool state);
-void setMotorState(bool state);
-
-void resetAutonomousSystem(void);
 
 
-
-bool goToLocation(point_t _thatSpot);
+void testPathAlgorithm();
 
 #endif	/* MACROS_H */
 

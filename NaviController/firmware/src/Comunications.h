@@ -10,8 +10,18 @@
 
 #include <stdbool.h>
 
-#define RUNNING true
-#define DONE    false
+
+
+typedef enum {
+    DONE = 0,
+    PENDING,
+    RUNNING,
+} ControllerState_t;
+
+bool getMotorControllerStatus();
+bool getGyroControllerStatus();
+void setGyroState(ControllerState_t state);
+void setMotorState(ControllerState_t state);
 
 
 void setMacroSafety(bool state);
@@ -22,7 +32,7 @@ void setMotorMacro(int macroIndex, int data);
 void setGyroMacro(int macroIndex, int data);
 void updateFTdata();
 
-void sendMacroDone();   
+void sendMacroDone();
 void sendMacroClear();
 
 

@@ -39,6 +39,13 @@
 #define REVERSE_DRIVE_DIRECTION 
 
 #define POZYX_FakeIT
+
+
+#define ROBOT_LENGTH    10
+#define ROBOT_WIDTH     5
+#define ARENA_LENGTH    550
+#define ARENA_WIDTH     350
+
 //******************************************************
 //                  MACRO INDEXES
 //******************************************************

@@ -11,7 +11,7 @@ void getRockLocations()
     int i;
     for(i = 5;i < 5+rockCount*2;i+=2)
     {
-        addRock(PozyxFT.ReceivedData[i],PozyxFT.ReceivedData[i+1]);
+       // addRock(PozyxFT.ReceivedData[i],PozyxFT.ReceivedData[i+1]);
     }
     
 }
