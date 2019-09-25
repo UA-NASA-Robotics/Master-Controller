@@ -59,5 +59,5 @@ int getWorldHight();
  */
 int getWorldWidth();
 
-void addRandomObjects(int dencity);
+
 #endif // MAP_H_INCLUDED

@@ -13,9 +13,6 @@ LL_t *start = NULL;
 
 ASPathNodeSource NodeSource;
 
-PathNode pathFrom = {5, 3};
-PathNode pathTo = {17, 20};
-
 
 bool IsPathThroughOpsticle();
 static void PathNodeNeighbors(ASNeighborList neighbors, void *node, void *context);
@@ -108,16 +105,16 @@ void printListH(void* nodePtr) {
     printf("Heading: %d, Dist: %d \r\n", ((PathNode*) nodePtr)->x, ((PathNode*) nodePtr)->y);
 }
 
-LL_t *RobotPathPoints;
+//LL_t *RobotPathPoints;
 
 void getPolarPath(LL_t* finalPath, point_t _pathFrom, point_t _pathTo) {
     int pathSize;
 
-    RobotPathPoints = LL_init();
+//    RobotPathPoints = LL_init();
 
     const ASPath path = ASPathCreate(&PathNodeSource, NULL, &_pathFrom, &_pathTo);
 
-    pathSize = ASPathGetCount(path);
+     pathSize = ASPathGetCount(path);
     // Make sure there is a path to examine
     if (pathSize > 1) {
         point_t segmentEndNode = *((point_t*) ASPathGetNode(path, 0)); //pathSize - 1));
@@ -126,7 +123,7 @@ void getPolarPath(LL_t* finalPath, point_t _pathFrom, point_t _pathTo) {
         int i;
 
         // Pushing the Ending point onto the robot's new Path
-        LL_push(RobotPathPoints, &_pathFrom);
+//        LL_push(RobotPathPoints, &_pathFrom);
 
         point_t pathNode;
 
@@ -162,20 +159,20 @@ void getPolarPath(LL_t* finalPath, point_t _pathFrom, point_t _pathTo) {
 
                 segmentEndNode = lastNode;
 
-                point_t *tmp = (point_t*) malloc(sizeof (point_t));
-                tmp->x = lastNode.x;
-                tmp->y = lastNode.y;
-                LL_push(RobotPathPoints, tmp);
+//                point_t *tmp = (point_t*) malloc(sizeof (point_t));
+//                tmp->x = lastNode.x;
+//                tmp->y = lastNode.y;
+//                LL_push(RobotPathPoints, tmp);
 
             }
             lastNode = pathNode;
         }
     }
 
-    LL_each(RobotPathPoints, printListH);
+    //LL_each(RobotPathPoints, printListH);
 
     ASPathDestroy(path);
-    LL_destroy(RobotPathPoints);
+//    LL_destroy(RobotPathPoints);
 }
 
 void POINT(int y, int x) {

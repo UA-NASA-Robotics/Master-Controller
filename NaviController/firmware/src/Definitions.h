@@ -43,8 +43,8 @@
 
 #define ROBOT_LENGTH    10
 #define ROBOT_WIDTH     5
-#define ARENA_LENGTH    550
-#define ARENA_WIDTH     350
+#define ARENA_LENGTH    250
+#define ARENA_WIDTH     250
 
 //******************************************************
 //                  MACRO INDEXES

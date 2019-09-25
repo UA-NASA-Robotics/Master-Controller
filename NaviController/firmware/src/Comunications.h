@@ -15,13 +15,13 @@
 typedef enum {
     DONE = 0,
     PENDING,
-    RUNNING,
+    RUNNING
 } ControllerState_t;
 
 bool getMotorControllerStatus();
 bool getGyroControllerStatus();
-void setGyroState(ControllerState_t state);
-void setMotorState(ControllerState_t state);
+void setGyroState(unsigned char state);
+void setMotorState(unsigned char state);
 
 
 void setMacroSafety(bool state);

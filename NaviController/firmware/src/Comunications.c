@@ -13,7 +13,7 @@ int lastMacroIndex, lastData;
 
 bool SafeForMacros = false;
 timers_t retransmitTimer;
-ControllerState_t gyroState = DONE, motorState = DONE;
+unsigned char gyroState = DONE, motorState = DONE;
 
 //- Getting the status of the other controller processes for autonomy
 //  so for either the gyro or motor controller, when it is done with a macro
@@ -21,6 +21,7 @@ ControllerState_t gyroState = DONE, motorState = DONE;
 
 void updateFTdata() {
     MotorFT.ReceivedData[1] = 0;
+    MotorFT.ReceivedData[MACRO_COMMAND_INDEX] = 0;
     /* We have received info from the gyro */
     if (receiveData(&GyroFT)) {
 
@@ -32,6 +33,11 @@ void updateFTdata() {
             setGyroState(DONE);
         } else {
             setGyroState(RUNNING);
+        }
+        if (GyroFT.ReceivedData[MACRO_COMMAND_INDEX] == lastMacroIndex)
+        {
+            setGyroState(RUNNING);
+            lastMacroIndex = 0;
         }
         GyroFT.ReceivedData[1] = 0;
     }
@@ -113,13 +119,15 @@ void setGyroMacro(int macroIndex, int data) {
     ToSend(&GyroFT, UART_COMMAND_DATA_INDEX, data);
     sendData(&GyroFT, GYRO_ADDRESS);
     setGyroState(PENDING);
+    setTimerInterval(&retransmitTimer,500);
+    resetTimer(&retransmitTimer);
 }
 
-void setGyroState(ControllerState_t state) {
+void setGyroState(unsigned char  state) {
     gyroState = state;
 }
 
-void setMotorState(ControllerState_t state) {
+void setMotorState(unsigned char state) {
     motorState = state;
 }
 
@@ -127,11 +135,13 @@ bool getMotorControllerStatus() {
 
     return motorState;
 }
+
+
 /* Returns the status of the gyro controller and if we haven't received 
  * confirmation of a macro then a retransmission of the last 
  * macro sent is resulting */
 bool getGyroControllerStatus() {
-    if (motorState == PENDING && timerDone(&retransmitTimer)) {
+    if (gyroState == PENDING && timerDone(&retransmitTimer)) {
         setGyroMacro(lastMacroIndex, lastData);
     }
     return gyroState;

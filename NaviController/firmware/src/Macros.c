@@ -58,7 +58,7 @@ bool noWaiting();
 
 bool gyroState = DONE, motorState = DONE;
 
-void handleCANmacro(  short macroIndex, short macroData) {
+void handleCANmacro(short macroIndex, short macroData) {
 
 
     /* Give RouterCard a confirmation that the packet was received*/
@@ -166,8 +166,6 @@ void stopMacro() {
     setMotorState(DONE);
 }
 
-
-
 bool isWaiting() {
     if (waitingOn == NULL) {
         return DONE;
@@ -179,27 +177,27 @@ void setWaiter(bool(*_waitingOn)()) {
     waitingOn = _waitingOn;
 }
 
-
-
-
 bool noWaiting() {
     return DONE;
 }
 
 point_t pathFrom = {0, 0};
-point_t pathTo = {200, 100};
+point_t pathTo = {0, 100};
 LL_t *RobotPath;
 void InitPathAlgorithm();
 void addStopToPath(point_t _stopPoint);
 bool RunPath();
+
 void testPathAlgorithm() {
-    InitPathAlgorithm();
+    //InitPathAlgorithm();
     RobotPath = LL_init();
     getPolarPath(RobotPath, pathFrom, pathTo);
     ConfiguredMacro = RunPath;
     MacroRunning = true;
 
-    //addStopToPath();
+    addStopToPath((point_t){100, 100});
+    addStopToPath((point_t){100, 0});
+    //addStopToPath((point_t){0, 0});
 }
 
 typedef enum {
@@ -208,25 +206,26 @@ typedef enum {
 } PathFollowStep_t;
 PathFollowStep_t pathSteps = ROTATION;
 double gyroHeading, motorDist;
+double myHeading = 0;
 bool RunPath() {
     if (getGyroControllerStatus() == DONE && getMotorControllerStatus() == DONE) {
-
+        if (RobotPath->size < 1) {
+            macroComplete(0);
+            return true;
+        }
         switch (pathSteps) {
             case ROTATION:
-                gyroHeading = ((waypoint_t*)(RobotPath->first->data))->heading;
-               setGyroMacro(ROTATION_COMMAND, gyroHeading);
+                gyroHeading = ((waypoint_t*) (RobotPath->first->data))->heading;
+                setGyroMacro(ROTATION_COMMAND, gyroHeading-myHeading);
+                myHeading = gyroHeading-myHeading;
                 pathSteps = DRIVE;
                 break;
             case DRIVE:
-                motorDist = ((waypoint_t*)(RobotPath->first->data))->Distance;
-               setMotorMacro(ENCODER_COMMAND, motorDist);
-                if (RobotPath->size < 1) {
-                    macroComplete(0);
-                    return true;
-                }
+                motorDist = ((waypoint_t*) (RobotPath->first->data))->Distance;
+                setMotorMacro(ENCODER_COMMAND, motorDist );
+                LL_pop(RobotPath);
                 pathSteps = ROTATION;
                 break;
-
         }
     }
     return false;
@@ -234,11 +233,12 @@ bool RunPath() {
 
 void InitPathAlgorithm() {
     generateObstacleBoarder(ROBOT_WIDTH / 2);
-    
+
 }
 
 void addStopToPath(point_t _stopPoint) {
-    getPolarPath(RobotPath, ((point_t) ((waypoint_t*) RobotPath->last->data)->Endpoint), _stopPoint);
+    point_t endpoint = ((point_t) ((waypoint_t*) RobotPath->last->data)->Endpoint);
+    getPolarPath(RobotPath, endpoint, _stopPoint);
 }
 
 
