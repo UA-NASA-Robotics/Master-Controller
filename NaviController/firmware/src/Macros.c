@@ -195,8 +195,13 @@ void testPathAlgorithm() {
     ConfiguredMacro = RunPath;
     MacroRunning = true;
 
-    addStopToPath((point_t){100, 100});
-    addStopToPath((point_t){100, 0});
+    addStopToPath((point_t) {
+        100, 100});
+
+    addStopToPath((point_t) {
+        100, 0});
+        addStopToPath((point_t) {
+        0, 0});
     //addStopToPath((point_t){0, 0});
 }
 
@@ -207,6 +212,7 @@ typedef enum {
 PathFollowStep_t pathSteps = ROTATION;
 double gyroHeading, motorDist;
 double myHeading = 0;
+
 bool RunPath() {
     if (getGyroControllerStatus() == DONE && getMotorControllerStatus() == DONE) {
         if (RobotPath->size < 1) {
@@ -216,13 +222,20 @@ bool RunPath() {
         switch (pathSteps) {
             case ROTATION:
                 gyroHeading = ((waypoint_t*) (RobotPath->first->data))->heading;
-                setGyroMacro(ROTATION_COMMAND, gyroHeading-myHeading);
-                myHeading = gyroHeading-myHeading;
+                if (gyroHeading > myHeading) {
+                    gyroHeading = gyroHeading - myHeading;
+                } else {
+                    gyroHeading = myHeading - gyroHeading;
+                }
+                if(gyroHeading > 180)
+                    gyroHeading -= 180;
+                setGyroMacro(ROTATION_COMMAND,  gyroHeading );
+                myHeading += gyroHeading;
                 pathSteps = DRIVE;
                 break;
             case DRIVE:
                 motorDist = ((waypoint_t*) (RobotPath->first->data))->Distance;
-                setMotorMacro(ENCODER_COMMAND, motorDist );
+                setMotorMacro(ENCODER_COMMAND, motorDist);
                 LL_pop(RobotPath);
                 pathSteps = ROTATION;
                 break;

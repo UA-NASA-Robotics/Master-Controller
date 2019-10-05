@@ -14,11 +14,10 @@ LL_t *start = NULL;
 ASPathNodeSource NodeSource;
 
 
-bool IsPathThroughOpsticle();
+bool isPointThroughObstacle();
 static void PathNodeNeighbors(ASNeighborList neighbors, void *node, void *context);
 static float PathNodeHeuristic(void *fromNode, void *toNode, void *context);
 bool isPathPoint(ASPath _path, int x, int y);
-void POINT(int y, int x);
 bool isTangentLineIntersecting(int y1, int x1, int y2, int x2);
 
 
@@ -43,7 +42,8 @@ static void PathNodeNeighbors(ASNeighborList neighbors, void *node, void *contex
     if (WorldAt(pathNode->x + 1, pathNode->y) == 0) {
 
         ASNeighborListAdd(neighbors, &(PathNode) {
-            pathNode->x + 1, pathNode->y}, 1);
+            pathNode->x + 1, pathNode->y
+        }, 1);
     }
     if (WorldAt(pathNode->x - 1, pathNode->y) == 0) {
 
@@ -110,11 +110,11 @@ void printListH(void* nodePtr) {
 void getPolarPath(LL_t* finalPath, point_t _pathFrom, point_t _pathTo) {
     int pathSize;
 
-//    RobotPathPoints = LL_init();
+    //    RobotPathPoints = LL_init();
 
     const ASPath path = ASPathCreate(&PathNodeSource, NULL, &_pathFrom, &_pathTo);
 
-     pathSize = ASPathGetCount(path);
+    pathSize = ASPathGetCount(path);
     // Make sure there is a path to examine
     if (pathSize > 1) {
         point_t segmentEndNode = *((point_t*) ASPathGetNode(path, 0)); //pathSize - 1));
@@ -123,7 +123,7 @@ void getPolarPath(LL_t* finalPath, point_t _pathFrom, point_t _pathTo) {
         int i;
 
         // Pushing the Ending point onto the robot's new Path
-//        LL_push(RobotPathPoints, &_pathFrom);
+        //        LL_push(RobotPathPoints, &_pathFrom);
 
         point_t pathNode;
 
@@ -141,6 +141,8 @@ void getPolarPath(LL_t* finalPath, point_t _pathFrom, point_t _pathTo) {
                 {
                     lastNode = pathNode;
                 }
+                if(segmentEndNode.x == lastNode.x && segmentEndNode.y == lastNode.y)
+                    lastNode = pathNode;
                 double tanFrac = (double) ((double) (lastNode.y - segmentEndNode.y) / (double) (lastNode.x - segmentEndNode.x));
 
                 double heading;
@@ -159,10 +161,10 @@ void getPolarPath(LL_t* finalPath, point_t _pathFrom, point_t _pathTo) {
 
                 segmentEndNode = lastNode;
 
-//                point_t *tmp = (point_t*) malloc(sizeof (point_t));
-//                tmp->x = lastNode.x;
-//                tmp->y = lastNode.y;
-//                LL_push(RobotPathPoints, tmp);
+                //                point_t *tmp = (point_t*) malloc(sizeof (point_t));
+                //                tmp->x = lastNode.x;
+                //                tmp->y = lastNode.y;
+                //                LL_push(RobotPathPoints, tmp);
 
             }
             lastNode = pathNode;
@@ -172,28 +174,15 @@ void getPolarPath(LL_t* finalPath, point_t _pathFrom, point_t _pathTo) {
     //LL_each(RobotPathPoints, printListH);
 
     ASPathDestroy(path);
-//    LL_destroy(RobotPathPoints);
+    //    LL_destroy(RobotPathPoints);
 }
 
-void POINT(int y, int x) {
-    PathNode *tmp;
-    tmp = malloc(sizeof (PathNode));
-    tmp->x = x;
-    tmp->y = y;
-    //printf("X: %d, Y: %d \r\n",x, y);
-    LL_push(start, tmp);
-}
+bool isPointThroughObstacle(int _x, int _y) {
 
-bool IsPathThroughOpsticle() {
-    int i;
-    for (i = 0; i < start->size - 1; i++) {
-        LL_node_t *tmpNode = LL_get(start, i);
-        PathNode *ptr = (PathNode*) tmpNode;
-        //printf("val: x %d\r\n", ptr->x);
-        if (WorldAt(ptr->x, ptr->y) == 1) {
-            return true;
-        }
+    if (WorldAt(_x, _y) == 1) {
+        return true;
     }
+
     return false;
 }
 
@@ -206,10 +195,10 @@ bool isTangentLineIntersecting(int y1, int x1, int y2, int x2) {
     int ddy, ddx; // compulsory variables: the double values of dy and dx
     int dx = x2 - x1;
     int dy = y2 - y1;
-    if (start != NULL)
-        LL_destroy(start);
-    start = LL_init();
-    POINT(y1, x1); // first point
+    bool intersectingObj = false;
+    
+    /* For every instance that intersectingObj is 'or'ed ('|') with its self so that if it found true it will remain true*/
+    intersectingObj = intersectingObj | isPointThroughObstacle(y1, x1); // first point
     // NB the last point can't be here, because of its previous point (which has to be verified)
     if (dy < 0) {
         ystep = -1;
@@ -237,16 +226,16 @@ bool isTangentLineIntersecting(int y1, int x1, int y2, int x2) {
                 error -= ddx;
                 // three cases (octant == right->right-top for directions below):
                 if (error + errorprev < ddx) // bottom square also
-                    POINT(y - ystep, x);
+                    intersectingObj = intersectingObj | isPointThroughObstacle(y - ystep, x);
                 else if (error + errorprev > ddx) // left square also
-                    POINT(y, x - xstep);
+                    intersectingObj = intersectingObj |isPointThroughObstacle(y, x - xstep);
                 else // corner: bottom and left squares also
                 {
-                    POINT(y - ystep, x);
-                    POINT(y, x - xstep);
+                    intersectingObj = intersectingObj | isPointThroughObstacle(y - ystep, x);
+                    intersectingObj = intersectingObj | isPointThroughObstacle(y, x - xstep);
                 }
             }
-            POINT(y, x);
+            intersectingObj = intersectingObj | isPointThroughObstacle(y, x);
             errorprev = error;
         }
     } else // the same as above
@@ -259,28 +248,20 @@ bool isTangentLineIntersecting(int y1, int x1, int y2, int x2) {
                 x += xstep;
                 error -= ddy;
                 if (error + errorprev < ddy)
-                    POINT(y, x - xstep);
+                    intersectingObj = intersectingObj | isPointThroughObstacle(y, x - xstep);
                 else if (error + errorprev > ddy)
-                    POINT(y - ystep, x);
+                    intersectingObj = intersectingObj |isPointThroughObstacle(y - ystep, x);
                 else {
-                    POINT(y, x - xstep);
-                    POINT(y - ystep, x);
+                    intersectingObj = intersectingObj | isPointThroughObstacle(y, x - xstep);
+                    intersectingObj = intersectingObj |isPointThroughObstacle(y - ystep, x);
                 }
             }
-            POINT(y, x);
+            intersectingObj = intersectingObj | isPointThroughObstacle(y, x);
             errorprev = error;
         }
     }
-    point_t *ptr;
-    LL_node_t *tmpNode;
-    for (i = 0; i < start->size - 1; i++) {
-        tmpNode = LL_get(start, i);
-        ptr = (point_t*) tmpNode;
-        //printf("val: x %d\r\n", ptr->x);
-        if (WorldAt(ptr->x, ptr->y) == 1) {
-            return true;
-        }
-    }
-    return false;
+
+   
+    return intersectingObj;
     // assert ((y == y2) && (x == x2));  // the last point (y2,x2) has to be the same with the last point of the algorithm
 }

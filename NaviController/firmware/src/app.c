@@ -140,10 +140,6 @@ void APP_Tasks(void) {
         {
             bool appInitialized = true;
 
-            testPathAlgorithm();
-//            while(1){
-//                //runMacro();
-//            }
             if (appInitialized) {
                 appData.state = APP_STATE_WATCHDOG;
                 MotorFT.ReceivedData[1] = 0;
