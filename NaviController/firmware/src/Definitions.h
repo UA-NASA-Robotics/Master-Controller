@@ -20,9 +20,27 @@
 #define off     1
 #define on      0
 
+
+
+typedef enum {
+    CONTROLBOX = 1,
+    POZYX,
+    JUICE_BOARD,
+    ROUTER_CARD,
+    MASTER_CONTROLLER,
+    MOTOR_CONTROLLER,
+    GYRO_CONTROLLER,
+    STRAIN_SENSOR,
+    OPTICAL_FLOW,
+    RASPBERRY_PI,
+    LED_CARD,
+    GLOBAL_ADDRESS = 31
+} Addresses_t;
+
+
 #define ROUTER_ADDRESS          4
 
-#define MY_ADDRESS              5
+#define MY_ADDRESS              MASTER_CONTROLLER
 
 #define MOTOR_ADDRESS           6
 
@@ -43,8 +61,8 @@
 
 #define ROBOT_LENGTH    10
 #define ROBOT_WIDTH     5
-#define ARENA_LENGTH    250
-#define ARENA_WIDTH     250
+#define ARENA_LENGTH    550
+#define ARENA_WIDTH     350
 
 //******************************************************
 //                  MACRO INDEXES

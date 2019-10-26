@@ -102,10 +102,10 @@ bool getMacroSafety() {
 }
 
 bool updateCanMACROcoms() {
-    ReceiveDataCAN();
-    if (getNewDataFlagStatus(1 << CAN_COMMAND_INDEX) && getCANFastData(CAN_COMMAND_INDEX) == 0) {
+    ReceiveDataCAN(FT_LOCAL);
+    if (getNewDataFlagStatus(1 << CAN_COMMAND_INDEX) && getCANFastData(FT_LOCAL,CAN_COMMAND_INDEX) == 0) {
         setMacroSafety(false);
-        handleCANmacro(getCANFastData(CAN_COMMAND_INDEX), getCANFastData(CAN_COMMAND_DATA_INDEX));
+        handleCANmacro(getCANFastData(FT_LOCAL,CAN_COMMAND_INDEX), getCANFastData(FT_LOCAL,CAN_COMMAND_DATA_INDEX));
         return false;
     }
     setMacroSafety(true);

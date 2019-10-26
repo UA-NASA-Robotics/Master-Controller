@@ -16,6 +16,7 @@
 #include "CAN.h"
 #include "Pozyx.h"
 #include "Telemetry.h"
+#include "PathFollowing.h"
 // *****************************************************************************
 // *****************************************************************************
 // Section: Global Data Definitions
@@ -26,39 +27,7 @@
 
 APP_DATA appData;
 
-// *****************************************************************************
-// *****************************************************************************
-// Section: Application Callback Functions
-// *****************************************************************************
-// *****************************************************************************
 
-/* TODO:  Add any necessary callback functions.
- */
-
-// *****************************************************************************
-// *****************************************************************************
-// Section: Application Local Functions
-// *****************************************************************************
-// *****************************************************************************
-
-
-/* TODO:  Add any necessary local functions.
- */
-
-
-// *****************************************************************************
-// *****************************************************************************
-// Section: Application Initialization and State Machine Functions
-// *****************************************************************************
-// *****************************************************************************
-
-/*******************************************************************************
-  Function:
-    void APP_Initialize ( void )
-
-  Remarks:
-    See prototype in app.h.
- */
 bool isLoaded = false;
 
 timers_t sec, ms100;
@@ -99,6 +68,8 @@ void APP_Initialize(void) {
 
     DRV_CAN0_Open();
     
+    InitializePathPlanning();
+    
     isLoaded = true;
 
 
@@ -115,17 +86,19 @@ void APP_Initialize(void) {
     }
 
     appData.state = APP_STATE_INIT;
+     while (1) {
+        ToSendCAN(GlobalAddressInturpret(1), 0x5555);
+        sendDataCAN(GLOBAL_ADDRESS);
+        delay(100);
+        ToSendCAN(1, 0x3333);
+        sendDataCAN(MOTOR_CONTROLLER);
+        delay(100);
+        ToSendCAN(1, 0x1111);
+        sendDataCAN(GYRO_CONTROLLER);
+        delay(1000);
+    }
 
 }
-
-
-/******************************************************************************
-  Function:
-    void APP_Tasks ( void )
-
-  Remarks:
-    See prototype in app.h.
- */
 
 
 
@@ -172,7 +145,7 @@ void APP_Tasks(void) {
 
             if (timerDone(&receiveTimer)) {
                 // CAN FastTransfer Receive
-                if (ReceiveDataCAN()) {
+                if (ReceiveDataCAN(FT_LOCAL)) {
 
                     if (getNewDataFlagStatus(0x02)) {
                         resetTimer(&BlinkTime);
@@ -184,7 +157,7 @@ void APP_Tasks(void) {
 
                     }
                     if (getNewDataFlagStatus(1 << CAN_COMMAND_INDEX)) {
-                        handleCANmacro(getCANFastData(CAN_COMMAND_INDEX), getCANFastData(CAN_COMMAND_DATA_INDEX)); 
+                        handleCANmacro(getCANFastData(FT_LOCAL,CAN_COMMAND_INDEX), getCANFastData(FT_LOCAL,CAN_COMMAND_DATA_INDEX)); 
                     }
                 }
                 updateFTdata();

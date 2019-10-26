@@ -2,38 +2,12 @@
 #include "Definitions.h"
 #include <stdlib.h>
 #include <stdio.h>
-int world[ARENA_LENGTH * ARENA_WIDTH];// =
-//{
-//    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,0,0,0,0,0,
-//    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0,0,0,0,0,0,
-//    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0,0,0,0,0,
-//    0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0,0,0,0,0,
-//    0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0,0,0,0,0,
-//    0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0,0,0,0,0,
-//    0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0,0,0,0,0,
-//    0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0,0,0,0,0,0,
-//    0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0,0,0,0,0,0,
-//    0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0,0,0,0,0,0,
-//    0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 0,0,0,0,0,0,
-//    0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0,0,0,0,0,0,
-//    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0,0,0,0,0,0,
-//    0, 0, 0, 1, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0,0,0,0,0,0,
-//    1, 0, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0,0,0,0,0,0,
-//    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0,0,0,0,0,
-//    1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0,1,0,0,0,0,
-//    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0,0,0,0,0,
-//    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0,0,0,0,0,
-//    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0,0,0,0,0,
-//    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0,0,0,0,0,
-//    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0,0,0,0,0,
-//    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0,0,0,0,0,
-//    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0,0,0,0,0,
-//    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0,0,0,0,0,
-//    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0,0,0,0,0,
-//    1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0,0,0,0,0,0,
-//    1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0,0,0,0,0,0,
-//
-//};
+
+
+void writeBitVal(int location, int _val);
+int getBitVal(int location);
+// assuming a 32 bit architecture (ARENA_LENGTH * ARENA_WIDTH) >> 8
+unsigned char world[6016];
 
 
 void addObtaclePoint(int x, int y);
@@ -53,7 +27,7 @@ int WorldAt(int x, int y)
 {
     if (x >= 0 && x < getWorldWidth() && y >= 0 && y < getWorldHight())
     {
-        return world[y*getWorldWidth()+x];
+        return getBitVal(y*getWorldWidth()+x);//world[y*getWorldWidth()+x];
     }
     else
     {
@@ -77,24 +51,24 @@ void generateObstacleBoarder(int _boarderWidth)
     // Top & Bottom Of Map boarder
     for(i = 0; i < ARENA_WIDTH * _boarderWidth; i++)
     {
-        world[i] = 1;
-        world[worldArea - i -1] = 1;
+        writeBitVal(i,1);
+        writeBitVal(worldArea - i -1,1);
     }
     int j;
     for(i = 0; i < worldArea; i+=ARENA_WIDTH)
     {
         for(j = 0; j < _boarderWidth; j++)
         {
-            world[i + j] = 1;
-            world[i - (j+1)] = 1;
+            writeBitVal(i + j, 1);
+            writeBitVal(i - (j+1),  1);
         }
 
     }
 }
 
-void addObstacle(int _x, int _y)
+void addobstacle(int _x, int _y)
 {
-    int x,y;
+     int x,y;
     // half of the robots width
     int objectHalf = (ROBOT_WIDTH >> 1);
     /* Should make a square rock that is the size of the robot in the Map */
@@ -102,14 +76,37 @@ void addObstacle(int _x, int _y)
     {
         for(x = _x - objectHalf; x < objectHalf +_x; x++)
         {
-            addObtaclePoint(x,y);
+            writeBitVal(y*getWorldWidth()+x, 1);
         }
     }
 
 }
+void writeBitVal(int location, int _val)
+{
+    int wordToAccess = location / 32;
+    int bitToAccess = location % 32;
+
+    if(_val > 0)
+    {
+        world[wordToAccess] = world[wordToAccess] | (1 << bitToAccess);
+    }else{
+          world[wordToAccess] = world[wordToAccess] & (!(1 << bitToAccess));
+    }
+}
+int getBitVal(int location)
+{
+    int wordToAccess = location / 32;
+    int bitToAccess = location % 32;
+    if( world[wordToAccess] & ((1 << bitToAccess)))
+        return 1;
+    else
+        return 0;
+
+
+}
 void addObtaclePoint(int x, int y)
 {
-    world[y*getWorldWidth()+x] = 1;
+    writeBitVal(y*getWorldWidth()+x, 1);
 }
 int getWorldHight()
 {

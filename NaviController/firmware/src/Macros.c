@@ -244,10 +244,7 @@ bool RunPath() {
     return false;
 }
 
-void InitPathAlgorithm() {
-    generateObstacleBoarder(ROBOT_WIDTH / 2);
 
-}
 
 void addStopToPath(point_t _stopPoint) {
     point_t endpoint = ((point_t) ((waypoint_t*) RobotPath->last->data)->Endpoint);

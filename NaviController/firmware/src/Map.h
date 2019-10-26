@@ -26,7 +26,7 @@ int WorldAt(int x, int y);
  * \return: N/A
  *
  */
-void gentateObstacleBoarder(int _boarderWidth);
+void generateObstacleBoarder(int _boarderWidth);
 
 
 /** \brief: Gives the ability to add objects to the map at specific

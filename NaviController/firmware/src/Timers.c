@@ -34,7 +34,7 @@ void resetTimer(timers_t * t)
 {
     t->lastMillis=millis();
 }
-//Call this function in your timer interupt that fires at 1ms
+//Call this function in your timer interrupt that fires at 1ms
 void globalTimerTracker( )
 {
     globalTime++;
