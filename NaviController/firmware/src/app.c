@@ -8,7 +8,7 @@
 #include "Macros.h"
 #include "Comunications.h"
 #include "FastTransfer.h"
-#include "CANFastTransfer.h"
+#include "CAN_Handler/CANFastTransfer.h"
 #include "Definitions.h"
 #include "changeNotification.h"
 #include "Timers.h"
@@ -147,7 +147,7 @@ void APP_Tasks(void) {
                 // CAN FastTransfer Receive
                 if (ReceiveDataCAN(FT_LOCAL)) {
 
-                    if (getNewDataFlagStatus(0x02)) {
+                    if (getNewDataFlagStatus(FT_LOCAL,0x02)) {
                         resetTimer(&BlinkTime);
                         while (!timerDone(&BlinkTime)) {
                             while (!timerDone(&ms100));
@@ -156,7 +156,7 @@ void APP_Tasks(void) {
                         }
 
                     }
-                    if (getNewDataFlagStatus(1 << CAN_COMMAND_INDEX)) {
+                    if (getNewDataFlagStatus(FT_LOCAL,1 << CAN_COMMAND_INDEX)) {
                         handleCANmacro(getCANFastData(FT_LOCAL,CAN_COMMAND_INDEX), getCANFastData(FT_LOCAL,CAN_COMMAND_DATA_INDEX)); 
                     }
                 }

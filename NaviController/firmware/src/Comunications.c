@@ -1,7 +1,7 @@
 
 #include "Comunications.h"
 #include "CAN.h"
-#include "CANFastTransfer.h"
+#include "CAN_Handler/CANFastTransfer.h"
 #include "uart_Handler.h"
 #include "FastTransfer.h"
 #include "Macros.h"
@@ -103,7 +103,7 @@ bool getMacroSafety() {
 
 bool updateCanMACROcoms() {
     ReceiveDataCAN(FT_LOCAL);
-    if (getNewDataFlagStatus(1 << CAN_COMMAND_INDEX) && getCANFastData(FT_LOCAL,CAN_COMMAND_INDEX) == 0) {
+    if (getNewDataFlagStatus(FT_LOCAL,1 << CAN_COMMAND_INDEX) && getCANFastData(FT_LOCAL,CAN_COMMAND_INDEX) == 0) {
         setMacroSafety(false);
         handleCANmacro(getCANFastData(FT_LOCAL,CAN_COMMAND_INDEX), getCANFastData(FT_LOCAL,CAN_COMMAND_DATA_INDEX));
         return false;
