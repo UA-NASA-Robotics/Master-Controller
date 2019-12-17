@@ -17,6 +17,7 @@
 #include "Pozyx.h"
 #include "Telemetry.h"
 #include "PathFollowing.h"
+#include "Macro_Handler/Macro_Mgr.h"
 // *****************************************************************************
 // *****************************************************************************
 // Section: Global Data Definitions
@@ -86,18 +87,6 @@ void APP_Initialize(void) {
     }
 
     appData.state = APP_STATE_INIT;
-     while (1) {
-        ToSendCAN(GlobalAddressInturpret(1), 0x5555);
-        sendDataCAN(GLOBAL_ADDRESS);
-        delay(100);
-        ToSendCAN(1, 0x3333);
-        sendDataCAN(MOTOR_CONTROLLER);
-        delay(100);
-        ToSendCAN(1, 0x1111);
-        sendDataCAN(GYRO_CONTROLLER);
-        delay(1000);
-    }
-
 }
 
 
@@ -127,7 +116,7 @@ void APP_Tasks(void) {
         }
         case APP_STATE_SERVICE_MACRO:
         {
-            if (isMacroRunning()) {
+            if (runMacros()) {
                 if (timerDone(&ms100)) {
                     LED2 ^= 1;
                 }
@@ -136,7 +125,6 @@ void APP_Tasks(void) {
                     LED1 ^= 1;
                 }
             }
-            runMacro();
             appData.state = APP_STATE_AWAITING_RESPONSE;
             break;
         }
@@ -160,30 +148,12 @@ void APP_Tasks(void) {
                         handleCANmacro(getCANFastData(FT_LOCAL,CAN_COMMAND_INDEX), getCANFastData(FT_LOCAL,CAN_COMMAND_DATA_INDEX)); 
                     }
                 }
-                updateFTdata();
             }
             appData.state = APP_STATE_SERVICE_MACRO;
             break;
         }
         case APP_STATE_AWAITING_RESPONSE:
         {
-            //            if(pinState(&GyroPin1))
-            //            {
-            //                printf("Toggle G1\r\n");
-            //            }
-            //            if(pinState(&GyroPin2))
-            //            {
-            //                printf("Toggle G2\r\n");
-            //            }
-            //            if(pinState(&MotorPin1))
-            //            {
-            //                printf("IO5 From Motor Toggled\r\n");
-            //            }
-            //            if(pinState(&MotorPin2))
-            //            {
-            //                printf("IO6 From Motor Toggled\r\n");
-            //            }
-
             appData.state = APP_STATE_WATCHDOG;
             break;
         }
@@ -198,12 +168,6 @@ void APP_Tasks(void) {
 
 bool getLoadedState() {
     return isLoaded;
-}
-
-void setAwaitPin(intPin_t* pin, int nextState) {
-    appData.state = APP_STATE_AWAITING_RESPONSE;
-    awaitPin = pin;
-    NEXT_APP_STATE = nextState;
 }
 
 /*******************************************************************************

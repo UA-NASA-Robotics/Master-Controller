@@ -13,6 +13,7 @@
 #include "app.h"
 #include "A_Star.h"
 #include "Motor.h"
+#include "Macro_Handler/Macro_Mgr.h"
 
 //*********************************************************
 //                      DEFINITIONS
@@ -47,7 +48,6 @@ void setWaiter(bool(*_waitingOn)());
 bool(*waitingOn)();
 bool waiting = false;
 timers_t TimeOut, clearMacroTimer, ClearTimer;
-bool(*ConfiguredMacro)();
 bool runningMacroData = 0;
 bool MacroRunning = false;
 
@@ -59,18 +59,11 @@ bool noWaiting();
 bool gyroState = DONE, motorState = DONE;
 
 void handleCANmacro(short macroIndex, short macroData) {
-
-
-    /* Give RouterCard a confirmation that the packet was received*/
-    ToSendCAN(CAN_COMMAND_INDEX, macroIndex);
-    sendDataCAN(ROUTER_ADDRESS);
-    setMacroSafety(true);
     setTimerInterval(&clearMacroTimer, 700);
     setTimerInterval(&ClearTimer, 100);
     switch (macroIndex) {
         case MACRO_CLEAR:
-            sendMacroClear();
-            stopMacro();
+            clearMacros();
             while (!timerDone(&clearMacroTimer)) {
                 while (!timerDone(&ClearTimer));
                 LED2 ^= 1;
@@ -80,48 +73,19 @@ void handleCANmacro(short macroIndex, short macroData) {
             break;
 
             /*********************** E X T E R N A L   M A C R O S*************************/
-        case GYRO_ROTATION:
-            setGyroMacro(ROTATION_COMMAND, (abs(macroData) > 0 ? macroData : -90));
-            break;
-        case GYRO_CORRECTION_MONITOR:
-            setGyroMacro(ROTATION_MONITORING, 0);
-            break;
-        case DRIVE_ENCODER:
-            setMotorMacro(ENCODER_COMMAND, (abs(macroData) > 0 ? macroData : 100));
-            break;
-        case DIGGING_DUMP:
-            setMotorMacro(DUMP_COMMAND, 0);
-            break;
-        case DIGGING_DIG:
-            setMotorMacro(DIG_COMMAND, (isMacroRunning() ? 0 : 1));
-            break;
-        case ARC_DRIVE_MACRO:
-            setMotorMacro(ARC_DRIVE, (abs(macroData) > 0 ? macroData : 75));
-            break;
-        case ZERO_BUCKET:
-            setMotorMacro(ZERO_MACRO, 0);
-            break;
-        case EMPTY_1:
-
-            break;
+      
             /*********************** I N T E R N A L   M A C R O S*************************/
         case FULL_AUTO:
 
-            MacroRunning = true;
             //resetAutonomousSystem();
             break;
         case START_CENTER:
             break;
         case FULL_DIGGING:
-            MacroRunning = true;
-
-
-            CalcInicialHeading();
-            MacroRunning = true;
+            unning = true;
 
             break;
         case FULL_AUTO_2:
-            MacroRunning = true;
 
             break;
         case EMPTY_7:
@@ -138,32 +102,6 @@ void handleCANmacro(short macroIndex, short macroData) {
 
             break;
     }
-}
-
-bool isMacroRunning() {
-    return MacroRunning;
-}
-
-void runMacro() {
-    if (ConfiguredMacro != NULL) {
-        if (ConfiguredMacro()) {
-            ConfiguredMacro = NULL;
-        }
-    }
-}
-
-void macroComplete(int macroID) {
-    ConfiguredMacro = NULL;
-    MacroRunning = false;
-}
-
-void stopMacro() {
-    setMacroSafety(false);
-    macroComplete(0);
-    waiting = false;
-    setWaiter(NULL);
-    setGyroState(DONE);
-    setMotorState(DONE);
 }
 
 bool isWaiting() {
@@ -186,13 +124,13 @@ point_t pathTo = {0, 100};
 LL_t *RobotPath;
 void InitPathAlgorithm();
 void addStopToPath(point_t _stopPoint);
-bool RunPath();
+bool RunPath(int nan);
 
 void testPathAlgorithm() {
     //InitPathAlgorithm();
     RobotPath = LL_init();
     getPolarPath(RobotPath, pathFrom, pathTo);
-    ConfiguredMacro = RunPath;
+    setMacroCallback(RunPath, 0, 3);
     MacroRunning = true;
 
     addStopToPath((point_t) {
@@ -200,7 +138,7 @@ void testPathAlgorithm() {
 
     addStopToPath((point_t) {
         100, 0});
-        addStopToPath((point_t) {
+    addStopToPath((point_t) {
         0, 0});
     //addStopToPath((point_t){0, 0});
 }
@@ -213,7 +151,7 @@ PathFollowStep_t pathSteps = ROTATION;
 double gyroHeading, motorDist;
 double myHeading = 0;
 
-bool RunPath() {
+bool RunPath(int nan) {
     if (getGyroControllerStatus() == DONE && getMotorControllerStatus() == DONE) {
         if (RobotPath->size < 1) {
             macroComplete(0);

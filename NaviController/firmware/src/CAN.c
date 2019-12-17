@@ -180,8 +180,6 @@ void CAN_ISR_CALLBACK(void) {
                     dataCombination = (long) rxPacket.messageContents[4];
                     break;
             }
-            //            printf("RXData: %d\r",dataCombination);
-            bool returnable = false;
             //If you wanted data back, store it according to the type requested
             switch (rx_message_requested[lastMessageIndexSent].rx_requested) {
                 case NO_DATA_REQUESTED:

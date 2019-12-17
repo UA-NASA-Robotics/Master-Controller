@@ -42,7 +42,7 @@ int getInicialHeading() {
 }
 
 void CalcInicialHeading() {
-    int16_t i, pozyxHeading = 0;
+    int16_t pozyxHeading = 0;
     receiveData(&PozyxFT);
     pozyxHeading = (int16_t)getPozyxHeading();
 

@@ -18,6 +18,9 @@
           <itemPath>../src/Pozyx.h</itemPath>
           <itemPath>../src/Telemetry.h</itemPath>
         </logicalFolder>
+        <logicalFolder name="f7" displayName="Macro_Handler" projectFiles="true">
+          <itemPath>../src/Macro_Handler/Macro_Mgr.h</itemPath>
+        </logicalFolder>
         <logicalFolder name="f2" displayName="MotorSystems" projectFiles="true">
           <itemPath>../src/Motor.h</itemPath>
           <itemPath>../src/MotorDefinitions.h</itemPath>
@@ -149,6 +152,9 @@
         <logicalFolder name="f5" displayName="Locolization" projectFiles="true">
           <itemPath>../src/Pozyx.c</itemPath>
           <itemPath>../src/Telemetry.c</itemPath>
+        </logicalFolder>
+        <logicalFolder name="f7" displayName="Macro_Handler" projectFiles="true">
+          <itemPath>../src/Macro_Handler/Macro_Mgr.c</itemPath>
         </logicalFolder>
         <logicalFolder name="f2" displayName="MotorSystems" projectFiles="true">
           <itemPath>../src/Motor.c</itemPath>
