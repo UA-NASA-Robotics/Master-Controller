@@ -1,3 +1,6 @@
 [submodule "NaviController/firmware/src/CAN_Handler"]
 	path = NaviController/firmware/src/CAN_Handler
 	url = https://github.com/UA-NASA-Robotics/CAN_Handler
+[submodule "NaviController/firmware/src/Macro_Handler"]
+	path = NaviController/firmware/src/Macro_Handler
+	url = https://github.com/UA-NASA-Robotics/Macro_Handler.git
