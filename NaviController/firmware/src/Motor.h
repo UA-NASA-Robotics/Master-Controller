@@ -9,12 +9,12 @@
 #define	MOTOR_H
 
 #include "motorHandler.h"
-#include "CAN.h"
+#include "CAN_Handler/CAN.h"
 
 void initMotors();
 void MotorsAllStop();
 void setMotor_Vel(int leftSpeed,int rightSpeed);
-void requestMotorData(uint16_t motorAddress, int dataRequested);
+void requestMotorData(Motor_t * motor, int dataRequested);
 void sendDriveCommand(int distance);
 
 #endif	/* MOTOR_H */

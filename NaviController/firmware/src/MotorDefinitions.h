@@ -11,6 +11,14 @@
 #include <stdbool.h>
 
 
+#ifndef DATA_T
+#define DATA_T
+typedef struct {
+    int data;
+    bool newDataFlag;
+} Data_t;
+#endif
+
 
 
 typedef enum
@@ -38,6 +46,15 @@ typedef struct
 	bool			isBrushless;
 	LimitSwitch_t   LimitSwitch;
     long            Position;
+    Data_t EncoderPos;
+    Data_t SSIEncoderPos;
+    Data_t HallPos;
+    Data_t A0;
+    Data_t A1;
+    Data_t Digital;
+    Data_t PosReached;
+    Data_t ErrorRqst;
+    Data_t CurrentUsage;
 	
 	
 }Motor_t;
@@ -165,21 +182,52 @@ Motor_t RightMotor,LeftMotor, BucketMotor,ArmMotor,PlowMotor;
 
 
 
+
+//Digital Outputs - Port0                           --3150.00h 
+#define  MOTOR_DIGITAL_OUTPUT_SET   0x3150, 0x00
+
+#define MOTOR_CONTINUE_OPERATION    0x3000, 0x00, 0x04
+
+//Actual Target Position                            --3760.00h 
+#define MOTOR_TARGET_POSITION       0x3760, 0x00
+
+
 //REGISTERS FOR REQUESTING DATA FROM MOTOR
 //SSI Absolute Encoder - Actual Position        -- 397A.00h
 #define  SSI_ENCODER_POSITION_REQUEST   0x3762, 0x0, 0x00
 #define  SSI_ENCODER_POSITION_RESET     0x3762, 0x00, 0x00
 //MOTOR_ENC_ActualPosition                      -- 396A.00h 
-#define  MOTOR_ENCODER_POSITION_REQUEST 0x3762, 0x00, 0x00
+#define  MOTOR_ENCODER_POSITION_REQUEST 0x396A, 0x00, 0x00
+#define  MOTOR_ENCODER_POSITION_RESET   0x396A, 0x00, 0x00
 //MOTOR_HALL_ActualPosition                     -- 394A.00h
 #define  MOTOR_HALL_POSITION_REQUEST    0x394A, 0x00, 0x00
+//Analogue Input 0                              -- 3100.00h
+#define  MOTOR_ANALOG_0_INPUT_REQUEST   0x3100, 0x00, 0x00
+//Analogue Input 1                              -- 3101.00h
+#define  MOTOR_ANALOG_1_INPUT_REQUEST   0x3101, 0x00, 0x00    
+//Digital Inputs                                -- 3120.00h 
+#define  MOTOR_DIGITAL_INPUT_REQUEST    0x3120, 0x00, 0x00
+//Motor Request Reached
+#define  MOTOR_POSITION_REACHED_REQUEST 0x3002, 0x00, 0x00
+//Motor Request Error
+#define MOTOR_ERROR_REQUEST             0x3001, 0x00, 0x00
+//Motor Current Usage
+#define MOTOR_CURRENT_USAGE             0x3262, 0x00, 0x00
+
 
 
 //DEFINES FOR HOW TO SORT DATA RETURNING FROM THE CAN BUS
+
 #define NO_DATA_REQUESTED               0
 #define ENCODER_POSITION_REQUESTED      1
 #define HALL_POSITION_REQUESTED         2
 #define SSI_ENCODER_POSITION_REQUESTED  3
+#define ANALOG_0_REQUESTED              4
+#define ANALOG_1_REQUESTED              5
+#define DIGITAL_INPUT_REQUESTED         6
+#define POSITION_REACHED_REQUESTED      7
+#define ERROR_REQUESTED                 8
+#define CURRENT_USAGE                   9
 
 
 //motor status tracking

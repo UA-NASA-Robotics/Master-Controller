@@ -8,6 +8,9 @@
 #ifndef DEFINITIONS_H
 #define	DEFINITIONS_H
 
+#include "CAN_Handler/GlobalCAN_IDs.h"
+
+
 #define RAD_TO_DEGREE   57.2957795
 #define DEGREE_TO_RAD   0.01745329
 #define mm_to_cm        0.1
@@ -22,29 +25,9 @@
 
 
 
-typedef enum {
-    CONTROLBOX = 1,
-    POZYX,
-    JUICE_BOARD,
-    ROUTER_CARD,
-    MASTER_CONTROLLER,
-    MOTOR_CONTROLLER,
-    GYRO_CONTROLLER,
-    STRAIN_SENSOR,
-    OPTICAL_FLOW,
-    RASPBERRY_PI,
-    LED_CARD,
-    GLOBAL_ADDRESS = 31
-} Addresses_t;
 
+#define MY_ADDRESS   MASTER_CONTROLLER
 
-#define ROUTER_ADDRESS          4
-
-#define MY_ADDRESS              MASTER_CONTROLLER
-
-#define MOTOR_ADDRESS           6
-
-#define GYRO_ADDRESS            7
 
 #define MACRO_COMMAND_INDEX      8
 #define UART_COMMAND_DATA_INDEX  9

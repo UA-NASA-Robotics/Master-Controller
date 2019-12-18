@@ -9,7 +9,7 @@
 #define	MOTORHANDLER_H
 
 #include "MotorDefinitions.h"
-#include "CAN.h"
+#include "CAN_Handler/CAN.h"
 
 void InitMotor_BG75(Motor_t* motor, char address, char statusBit,char mob, int maxRPM, int maxCurrent, LimitSwitch_t limitSwitch);
 void InitMotor(Motor_t* motor, char address, char statusBit,char mob, int maxRPM, int maxCurrent, LimitSwitch_t limitSwitch, bool brushless);

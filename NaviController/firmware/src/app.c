@@ -13,11 +13,12 @@
 #include "changeNotification.h"
 #include "Timers.h"
 #include "uart_Handler.h"
-#include "CAN.h"
+#include "CAN_Handler/CAN.h"
 #include "Pozyx.h"
 #include "Telemetry.h"
 #include "PathFollowing.h"
 #include "Macro_Handler/Macro_Mgr.h"
+#include "DataPublishing.h"
 // *****************************************************************************
 // *****************************************************************************
 // Section: Global Data Definitions
@@ -35,16 +36,16 @@ timers_t sec, ms100;
 timers_t bootTimer, ledTime, watchDog, receiveTimer, BlinkTime;
 
 void APP_Initialize(void) {
-    
+
     /* Place the App state machine in its initial state. */
     appData.state = APP_STATE_INIT;
     initChangeNotification();
-    
+
     LED1 = off;
     LED2 = off;
     LED3 = off;
     LED4 = off;
-    
+
     /* Initializing Timers */
     setTimerInterval(&bootTimer, 8000);
     setTimerInterval(&watchDog, 100);
@@ -53,8 +54,8 @@ void APP_Initialize(void) {
     setTimerInterval(&sec, 1000);
     setTimerInterval(&ms100, 100);
     setTimerInterval(&ledTime, 50);
-    
-    
+
+
     /* Turning on the Timer the Runs the System's timers_t */
     DRV_TMR0_Start();
 
@@ -63,16 +64,19 @@ void APP_Initialize(void) {
 
     InitFastTransferModule(&MotorFT, Motor_UART, MY_ADDRESS, Send_put, Buffer_Get, Buffer_Size, Buffer_Peek);
     InitFastTransferModule(&GyroFT, Gyro_UART, MY_ADDRESS, Send_put, Buffer_Get, Buffer_Size, Buffer_Peek);
-    
+
     InitPozyx();
 
 
     DRV_CAN0_Open();
-    
+
     InitializePathPlanning();
-    
+
     isLoaded = true;
 
+    /* Publish data on the global bus in a certain period */
+    //initGlobalData(DEVICE_STATUS, getLoadedState, 500);
+    initGlobalData(DEVICE_MACRO, getRunningMacros, 500);
 
     /* Play pattern on the LEDs */
     while (!timerDone(&bootTimer)) {
@@ -93,11 +97,12 @@ void APP_Initialize(void) {
 
 intPin_t* awaitPin;
 int NEXT_APP_STATE = 0;
+
 void APP_Tasks(void) {
 
     /* Check the application's current state. */
     switch (appData.state) {
-        /* Application's initial state. */
+            /* Application's initial state. */
         case APP_STATE_INIT:
         {
             bool appInitialized = true;
@@ -116,14 +121,11 @@ void APP_Tasks(void) {
         }
         case APP_STATE_SERVICE_MACRO:
         {
-            if (runMacros()) {
-                if (timerDone(&ms100)) {
-                    LED2 ^= 1;
-                }
+            if (getRunningMacros() != 0) {
+                runMacros();
+                LED4 = on;
             } else {
-                if (timerDone(&sec)) {
-                    LED1 ^= 1;
-                }
+                LED4 = off;
             }
             appData.state = APP_STATE_AWAITING_RESPONSE;
             break;
@@ -131,24 +133,26 @@ void APP_Tasks(void) {
         case APP_STATE_COMS_CHECK:
         {
 
-            if (timerDone(&receiveTimer)) {
-                // CAN FastTransfer Receive
-                if (ReceiveDataCAN(FT_LOCAL)) {
-
-                    if (getNewDataFlagStatus(FT_LOCAL,0x02)) {
-                        resetTimer(&BlinkTime);
-                        while (!timerDone(&BlinkTime)) {
-                            while (!timerDone(&ms100));
-                            LED1 ^= 1;
-                            LED4 ^= 1;
-                        }
-
-                    }
-                    if (getNewDataFlagStatus(FT_LOCAL,1 << CAN_COMMAND_INDEX)) {
-                        handleCANmacro(getCANFastData(FT_LOCAL,CAN_COMMAND_INDEX), getCANFastData(FT_LOCAL,CAN_COMMAND_DATA_INDEX)); 
-                    }
-                }
-            }
+            //            if (timerDone(&receiveTimer)) {
+            //                // CAN FastTransfer Receive
+            //                if (ReceiveDataCAN(FT_LOCAL)) {
+            //
+            //                    if (getNewDataFlagStatus(FT_LOCAL,0x02)) {
+            //                        resetTimer(&BlinkTime);
+            //                        while (!timerDone(&BlinkTime)) {
+            //                            while (!timerDone(&ms100));
+            //                            LED1 ^= 1;
+            //                            LED4 ^= 1;
+            //                        }
+            //
+            //                    }
+            //                    if (getNewDataFlagStatus(FT_LOCAL,1 << CAN_COMMAND_INDEX)) {
+            //                        handleCANmacro(getCANFastData(FT_LOCAL,CAN_COMMAND_INDEX), getCANFastData(FT_LOCAL,CAN_COMMAND_DATA_INDEX)); 
+            //                    }
+            //                }
+            //            }
+            handleMacroStatus();
+            publishData();
             appData.state = APP_STATE_SERVICE_MACRO;
             break;
         }

@@ -58,6 +58,54 @@ bool noWaiting();
 
 bool gyroState = DONE, motorState = DONE;
 
+
+
+
+
+timers_t voidTime,voidTime2;
+
+bool Dummy(int val) {
+    if (voidTime.timerInterval != val) {
+        setTimerInterval(&voidTime, val);
+    }
+    return timerDone(&voidTime);
+}
+bool Dummy2(int val) {
+    if (voidTime2.timerInterval != val) {
+        setTimerInterval(&voidTime2, val);
+    }
+    return timerDone(&voidTime2);
+}
+#define dumbMac1             (uint16_t)(1 << 1)
+void handleMacroStatus() {
+    ReceiveDataCAN(FT_GLOBAL);
+
+    /* If a macro is seen on the global bus from the router card*/
+    if (getNewDataFlagStatus(FT_GLOBAL, getGBL_MACRO_INDEX(ROUTER_CARD))) {
+
+        int macroID = getCANFastData(FT_GLOBAL, getGBL_MACRO_INDEX(ROUTER_CARD));
+        int macroDATA = getCANFastData(FT_GLOBAL, getGBL_MACRO_INDEX(ROUTER_CARD) + 1);
+        if (macroID == 0) {
+            clearMacros();
+        } else {
+            /* Add the macro to the queue*/
+            switch (macroID) {
+                case dumbMac1:
+                    setMacroCallback(Dummy, 5000, dumbMac1);
+                    //setMacroCallback(Dummy2, 15000, 2);
+                    break;
+                default:
+                    break;
+            }
+
+        }
+    }
+    if (ReceiveDataCAN(FT_LOCAL)) {
+
+    }
+
+}
+
 void handleCANmacro(short macroIndex, short macroData) {
     setTimerInterval(&clearMacroTimer, 700);
     setTimerInterval(&ClearTimer, 100);
@@ -82,7 +130,6 @@ void handleCANmacro(short macroIndex, short macroData) {
         case START_CENTER:
             break;
         case FULL_DIGGING:
-            unning = true;
 
             break;
         case FULL_AUTO_2:

@@ -1,6 +1,6 @@
 #include "Motor.h"
 #include "MotorDefinitions.h"
-#include "CAN.h"
+#include "CAN_Handler/CAN.h"
 void initMotors()
 {
 	//WARNING!!! - Why is limit switch have 3 ints and we are passing only 2?
@@ -66,19 +66,36 @@ void setMotor_Vel(int leftSpeed,int rightSpeed)
     
 }
 
-void requestMotorData(uint16_t motorAddress, int dataRequested)
-{
-    switch(dataRequested)
-    {
+void requestMotorData(Motor_t * motor, int dataRequested) {
+    switch (dataRequested) {
         case ENCODER_POSITION_REQUESTED:
-            requestMotorPacketWithResponse(motorAddress,MOTOR_ENCODER_POSITION_REQUEST,HALL_POSITION_REQUESTED);             
+            requestMotorPacketWithResponse(motor->ID, MOTOR_ENCODER_POSITION_REQUEST, HALL_POSITION_REQUESTED, &(motor->EncoderPos));
             break;
-        case HALL_POSITION_REQUESTED:        
-            requestMotorPacketWithResponse(motorAddress,MOTOR_HALL_POSITION_REQUEST,SSI_ENCODER_POSITION_REQUESTED);   
+        case HALL_POSITION_REQUESTED:
+            requestMotorPacketWithResponse(motor->ID, MOTOR_HALL_POSITION_REQUEST, SSI_ENCODER_POSITION_REQUESTED, &(motor->HallPos));
             break;
-        case SSI_ENCODER_POSITION_REQUESTED:  
-            requestMotorPacketWithResponse(motorAddress,SSI_ENCODER_POSITION_REQUEST,ENCODER_POSITION_REQUESTED);          
-            break;           
+        case SSI_ENCODER_POSITION_REQUESTED:
+            requestMotorPacketWithResponse(motor->ID, SSI_ENCODER_POSITION_REQUEST, ENCODER_POSITION_REQUESTED, &(motor->SSIEncoderPos));
+            break;
+        case ANALOG_0_REQUESTED:
+            requestMotorPacketWithResponse(motor->ID, MOTOR_ANALOG_0_INPUT_REQUEST, ANALOG_0_REQUESTED, &(motor->A0));
+            break;
+        case ANALOG_1_REQUESTED:
+            requestMotorPacketWithResponse(motor->ID, MOTOR_ANALOG_1_INPUT_REQUEST, ANALOG_1_REQUESTED, &(motor->A1));
+            break;
+        case DIGITAL_INPUT_REQUESTED:
+            requestMotorPacketWithResponse(motor->ID, MOTOR_DIGITAL_INPUT_REQUEST, DIGITAL_INPUT_REQUESTED, &(motor->Digital));
+            break;
+        case POSITION_REACHED_REQUESTED:
+            requestMotorPacketWithResponse(motor->ID, MOTOR_POSITION_REACHED_REQUEST, POSITION_REACHED_REQUESTED, &(motor->PosReached));
+            break;
+        case ERROR_REQUESTED:
+            requestMotorPacketWithResponse(motor->ID, MOTOR_ERROR_REQUEST, ERROR_REQUESTED, &(motor->ErrorRqst));
+            break;
+        case CURRENT_USAGE:
+            requestMotorPacketWithResponse(motor->ID, MOTOR_CURRENT_USAGE, CURRENT_USAGE, &(motor->CurrentUsage));
+            break;
+
     }
 }
 void sendDriveCommand(int distance)

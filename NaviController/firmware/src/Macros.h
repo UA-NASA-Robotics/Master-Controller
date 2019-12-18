@@ -40,7 +40,7 @@ typedef enum {
 } MacroList_t;
 
 
-
+void handleMacroStatus();
 
 void macroComplete(int macroID);
 void configureMacro(int macroID, int macroData);

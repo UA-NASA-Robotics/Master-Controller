@@ -64,7 +64,7 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 #include "system_definitions.h"
 #include "changeNotification.h"
 #include "Timers.h"
-#include "CAN.h"
+#include "../../CAN_Handler/CAN.h"
 // *****************************************************************************
 // *****************************************************************************
 // Section: System Interrupt Vector Functions
