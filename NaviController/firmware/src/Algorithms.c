@@ -14,7 +14,7 @@ LL_t *start = NULL;
 ASPathNodeSource NodeSource;
 
 
-bool isPointThroughObstacle();
+bool isPointThroughObstacle(int _x, int _y);
 static void PathNodeNeighbors(ASNeighborList neighbors, void *node, void *context);
 static float PathNodeHeuristic(void *fromNode, void *toNode, void *context);
 bool isPathPoint(ASPath _path, int x, int y);
@@ -111,7 +111,7 @@ void getPolarPath(LL_t* finalPath, point_t _pathFrom, point_t _pathTo) {
     int pathSize;
 
     //    RobotPathPoints = LL_init();
-
+    // Not that the start point CAN NOT be 0, 0
     const ASPath path = ASPathCreate(&PathNodeSource, NULL, &_pathFrom, &_pathTo);
 
     pathSize = ASPathGetCount(path);
@@ -146,10 +146,8 @@ void getPolarPath(LL_t* finalPath, point_t _pathFrom, point_t _pathTo) {
                 double tanFrac = (double) ((double) (lastNode.y - segmentEndNode.y) / (double) (lastNode.x - segmentEndNode.x));
 
                 double heading;
-                if (tanFrac < 0)
-                    heading = 180 + atan((tanFrac)) * (180.0 / 3.14159);
-                else
-                    heading = atan((tanFrac)) * (180.0 / 3.14159);
+                heading = 360 - ((atan2((double)(lastNode.x-segmentEndNode.x),(double)(lastNode.y - segmentEndNode.y)) * (180.0/M_PI)) + 270.0) ;
+                if(heading <0) heading += 360;
 
                 waypoint_t *polarTmp = malloc(sizeof (waypoint_t));
                 polarTmp->heading = (double) heading;
@@ -182,9 +180,9 @@ bool isPointThroughObstacle(int _x, int _y) {
     if (WorldAt(_x, _y) == 1) {
         return true;
     }
-
     return false;
 }
+
 
 bool isTangentLineIntersecting(int y1, int x1, int y2, int x2) {
     int i; // loop counter
@@ -196,9 +194,11 @@ bool isTangentLineIntersecting(int y1, int x1, int y2, int x2) {
     int dx = x2 - x1;
     int dy = y2 - y1;
     bool intersectingObj = false;
-    
+    if (start != NULL)
+        LL_destroy(start);
+    start = LL_init();
     /* For every instance that intersectingObj is 'or'ed ('|') with its self so that if it found true it will remain true*/
-    intersectingObj = intersectingObj | isPointThroughObstacle(y1, x1); // first point
+    intersectingObj = intersectingObj | isPointThroughObstacle(x1, y1); // first point
     // NB the last point can't be here, because of its previous point (which has to be verified)
     if (dy < 0) {
         ystep = -1;
@@ -226,16 +226,16 @@ bool isTangentLineIntersecting(int y1, int x1, int y2, int x2) {
                 error -= ddx;
                 // three cases (octant == right->right-top for directions below):
                 if (error + errorprev < ddx) // bottom square also
-                    intersectingObj = intersectingObj | isPointThroughObstacle(y - ystep, x);
+                    intersectingObj = intersectingObj | isPointThroughObstacle(x, y - ystep);
                 else if (error + errorprev > ddx) // left square also
-                    intersectingObj = intersectingObj |isPointThroughObstacle(y, x - xstep);
+                    intersectingObj = intersectingObj |isPointThroughObstacle(x - xstep, y);
                 else // corner: bottom and left squares also
                 {
-                    intersectingObj = intersectingObj | isPointThroughObstacle(y - ystep, x);
-                    intersectingObj = intersectingObj | isPointThroughObstacle(y, x - xstep);
+                    intersectingObj = intersectingObj | isPointThroughObstacle(x, y - ystep);
+                    intersectingObj = intersectingObj | isPointThroughObstacle(x - xstep, y);
                 }
             }
-            intersectingObj = intersectingObj | isPointThroughObstacle(y, x);
+            intersectingObj = intersectingObj | isPointThroughObstacle(x,y);
             errorprev = error;
         }
     } else // the same as above
@@ -248,20 +248,20 @@ bool isTangentLineIntersecting(int y1, int x1, int y2, int x2) {
                 x += xstep;
                 error -= ddy;
                 if (error + errorprev < ddy)
-                    intersectingObj = intersectingObj | isPointThroughObstacle(y, x - xstep);
+                    intersectingObj = intersectingObj | isPointThroughObstacle(x - xstep, y);
                 else if (error + errorprev > ddy)
-                    intersectingObj = intersectingObj |isPointThroughObstacle(y - ystep, x);
+                    intersectingObj = intersectingObj |isPointThroughObstacle(x, y - ystep);
                 else {
-                    intersectingObj = intersectingObj | isPointThroughObstacle(y, x - xstep);
-                    intersectingObj = intersectingObj |isPointThroughObstacle(y - ystep, x);
+                    intersectingObj = intersectingObj | isPointThroughObstacle(x - xstep, y);
+                    intersectingObj = intersectingObj |isPointThroughObstacle(x, y - ystep);
                 }
             }
-            intersectingObj = intersectingObj | isPointThroughObstacle(y, x);
+            intersectingObj = intersectingObj | isPointThroughObstacle(x,y);
             errorprev = error;
         }
     }
 
-   
+
     return intersectingObj;
     // assert ((y == y2) && (x == x2));  // the last point (y2,x2) has to be the same with the last point of the algorithm
 }

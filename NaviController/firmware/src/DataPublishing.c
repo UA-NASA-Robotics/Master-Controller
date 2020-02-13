@@ -8,7 +8,14 @@
 #define DATA_ELEMENTS_COUNT 7
 timers_t dataPeriodTimer[DATA_ELEMENTS_COUNT];
 int (*dataRetrievalFunc[DATA_ELEMENTS_COUNT])();
-
+void InitDataPublishing()
+{
+    int i;
+    for( i = 0;i< DATA_ELEMENTS_COUNT;i++)
+    {
+        dataRetrievalFunc[i] = NULL;
+    }
+}
 void initGlobalData(GlobalDeviceData_t _index, int (*getFuncPointer)(void), unsigned long _interval) {
     setTimerInterval(&dataPeriodTimer[_index], _interval);
     dataRetrievalFunc[_index] = getFuncPointer;
@@ -24,7 +31,7 @@ bool publishData() {
         if (dataRetrievalFunc[i] != NULL) {
 
             // Make sure the interval that we want to send the data out on has elapsed
-            if (timerDone(&dataPeriodTimer[i])) {
+            if (timerDone(&(dataPeriodTimer[i]))) {
                 // Making sure we actually have data to send
                 validData = true;
                 //Send the data on the can bus

@@ -22,10 +22,13 @@ extern "C" {
 #define USE_POZYX_HEADING
     
 void InitPozyx();
+void receivePozyx();
+int getXpos();
+int getYpos();
 point_t getHeadingWaypoint();
-double getPozyxHeading();
+int getPozyxHeading();
 point_t getLocation();
-void setHeadingWaypoint(point_t _point);
+
 
 
 #ifdef	__cplusplus

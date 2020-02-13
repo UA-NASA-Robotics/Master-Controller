@@ -29,8 +29,6 @@
 #define MY_ADDRESS   MASTER_CONTROLLER
 
 
-#define MACRO_COMMAND_INDEX      8
-#define UART_COMMAND_DATA_INDEX  9
 
 #define CAN_ADDRESS_INDEX       0
 
@@ -44,8 +42,8 @@
 
 #define ROBOT_LENGTH    10
 #define ROBOT_WIDTH     5
-#define ARENA_LENGTH    550
-#define ARENA_WIDTH     350
+#define ARENA_LENGTH    55
+#define ARENA_WIDTH     35
 
 //******************************************************
 //                  MACRO INDEXES
@@ -56,7 +54,8 @@
     #define FULL_AUTONOMY           1
 //**********Motor Macros****************
    
-    #define ENCODER_COMMAND         3    //drive a distance
+    #define ENCODER_COMMAND         (uint16_t)(1 << 10)    //drive a distance
+    #define AUTO_DRIVE_MACRO        (uint16_t)(1 << 11)
     #define ARC_DRIVE               4
 #define dumbMac1 7
 #define dumbMac2 8
@@ -70,7 +69,7 @@
     #define ZERO_MACRO              100
 
 //**********Gyro Macros*****************
-    #define ROTATION_COMMAND        1  //rotate
+    #define ROTATION_COMMAND        (uint16_t)(1<<8)  //rotate
     #define ROTATION_MONITORING     2   
 
  //**************TO ALL**********************

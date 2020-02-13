@@ -3,5 +3,6 @@
 
 void InitializePathPlanning()
 {
-    generateObstacleBoarder(ROBOT_WIDTH/2);
+    ClearWorld();
+    //generateObstacleBoarder(0);
 }

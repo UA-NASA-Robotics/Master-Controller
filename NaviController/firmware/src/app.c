@@ -19,6 +19,7 @@
 #include "PathFollowing.h"
 #include "Macro_Handler/Macro_Mgr.h"
 #include "DataPublishing.h"
+#include "Map.h"
 // *****************************************************************************
 // *****************************************************************************
 // Section: Global Data Definitions
@@ -47,7 +48,7 @@ void APP_Initialize(void) {
     LED4 = off;
 
     /* Initializing Timers */
-    setTimerInterval(&bootTimer, 8000);
+    setTimerInterval(&bootTimer, 3000);
     setTimerInterval(&watchDog, 100);
     setTimerInterval(&BlinkTime, 700);
     setTimerInterval(&receiveTimer, 20);
@@ -62,21 +63,25 @@ void APP_Initialize(void) {
     initCANISRs();
     initCANFT();
 
-    InitFastTransferModule(&MotorFT, Motor_UART, MY_ADDRESS, Send_put, Buffer_Get, Buffer_Size, Buffer_Peek);
-    InitFastTransferModule(&GyroFT, Gyro_UART, MY_ADDRESS, Send_put, Buffer_Get, Buffer_Size, Buffer_Peek);
+    //InitFastTransferModule(&MotorFT, Motor_UART, MY_ADDRESS, Send_put, Buffer_Get, Buffer_Size, Buffer_Peek);
+    //InitFastTransferModule(&GyroFT, Gyro_UART, MY_ADDRESS, Send_put, Buffer_Get, Buffer_Size, Buffer_Peek);
 
     InitPozyx();
 
 
     DRV_CAN0_Open();
-
+    
     InitializePathPlanning();
 
     isLoaded = true;
 
     /* Publish data on the global bus in a certain period */
+    InitDataPublishing();
     //initGlobalData(DEVICE_STATUS, getLoadedState, 500);
     initGlobalData(DEVICE_MACRO, getRunningMacros, 500);
+    initGlobalData(DATA_0, getXpos, 200);
+    initGlobalData(DATA_1, getYpos, 200);
+    initGlobalData(DATA_3, getPozyxHeading, 200);
 
     /* Play pattern on the LEDs */
     while (!timerDone(&bootTimer)) {
@@ -89,6 +94,16 @@ void APP_Initialize(void) {
         LED4 ^= 1;
         delay(50);
     }
+//    handleCANmacro(1<<2, 0);
+    
+    int y;
+    for(y = 0;y<20;y++){
+        addObtaclePoint(15, y);
+    }
+//    for(y = 10;y<getWorldWidth();y++){
+//        addObtaclePoint(35, y);
+//    }
+
 
     appData.state = APP_STATE_INIT;
 }
@@ -109,7 +124,6 @@ void APP_Tasks(void) {
 
             if (appInitialized) {
                 appData.state = APP_STATE_WATCHDOG;
-                MotorFT.ReceivedData[1] = 0;
             }
             break;
         }
@@ -123,9 +137,10 @@ void APP_Tasks(void) {
         {
             if (getRunningMacros() != 0) {
                 runMacros();
-                LED4 = on;
-            } else {
-                LED4 = off;
+                
+            }
+            if(timerDone(&sec)){
+                LED4 ^=1;
             }
             appData.state = APP_STATE_AWAITING_RESPONSE;
             break;
@@ -151,6 +166,7 @@ void APP_Tasks(void) {
             //                    }
             //                }
             //            }
+            receivePozyx();
             handleMacroStatus();
             publishData();
             appData.state = APP_STATE_SERVICE_MACRO;

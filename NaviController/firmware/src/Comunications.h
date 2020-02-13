@@ -28,7 +28,7 @@ void setMacroSafety(bool state);
 bool getMacroSafety();
 bool updateCanMACROcoms();
 void setPositionSnapshot();
-void setMotorMacro(int macroIndex, int data);
+void setMotorMacro(int macroIndex, short data);
 void setGyroMacro(int macroIndex, int data);
 void updateFTdata();
 

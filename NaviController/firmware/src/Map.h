@@ -2,7 +2,7 @@
 #define MAP_H_INCLUDED
 
 
-
+void ClearWorld();
 
 /** \brief: This function given and X & Y value will provide a 1 for
  *          the presence of an obstacle at that location or 0 of none.

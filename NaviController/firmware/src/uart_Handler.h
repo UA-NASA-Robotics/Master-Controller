@@ -24,7 +24,7 @@
 
 
 //Ring Buffer parameters for input UART (UART 4: U4RX)
-#define UART_BUFFER_SIZE 500 
+#define UART_BUFFER_SIZE 100 
 typedef enum
 {
     MODULE_ERROR

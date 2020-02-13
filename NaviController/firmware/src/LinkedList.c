@@ -19,7 +19,7 @@ static LL_node_t *LL_initNode(void *);
  * returns:   pointer to new list
  */
 LL_t *LL_init() {
-    LL_t *list = (LL_t *) malloc(sizeof (LL_t));
+    LL_t *list = (LL_t *)malloc(sizeof(LL_t));
     list->size = 0;
     list->first = NULL;
     list->last = NULL;

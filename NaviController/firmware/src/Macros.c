@@ -1,6 +1,6 @@
 #include "Pozyx.h"
 #include "Macros.h"
-
+#include "Definitions.h"
 #include "Map.h"
 #include "Definitions.h"
 #include "CAN_Handler/CANFastTransfer.h"
@@ -14,6 +14,7 @@
 #include "A_Star.h"
 #include "Motor.h"
 #include "Macro_Handler/Macro_Mgr.h"
+#include <stdint.h>
 
 //*********************************************************
 //                      DEFINITIONS
@@ -42,12 +43,17 @@ bool autoWaiting = false;
 unsigned char MacroState = 0;
 
 
-
+point_t pathFrom = {50, 50};
+point_t pathTo = {25, 10  };
+LL_t *RobotPath;
+void addStopToPath(point_t _stopPoint);
+bool RunPath(int nan);
 
 void setWaiter(bool(*_waitingOn)());
 bool(*waitingOn)();
 bool waiting = false;
 timers_t TimeOut, clearMacroTimer, ClearTimer;
+timers_t Retransmit;
 bool runningMacroData = 0;
 bool MacroRunning = false;
 
@@ -62,7 +68,7 @@ bool gyroState = DONE, motorState = DONE;
 
 
 
-timers_t voidTime,voidTime2;
+timers_t voidTime, voidTime2;
 
 bool Dummy(int val) {
     if (voidTime.timerInterval != val) {
@@ -70,84 +76,42 @@ bool Dummy(int val) {
     }
     return timerDone(&voidTime);
 }
-bool Dummy2(int val) {
-    if (voidTime2.timerInterval != val) {
-        setTimerInterval(&voidTime2, val);
-    }
-    return timerDone(&voidTime2);
-}
-#define dumbMac1             (uint16_t)(1 << 1)
+
+#define TEST_DRIVE (uint16_t)(1<<2)
+
 void handleMacroStatus() {
     ReceiveDataCAN(FT_GLOBAL);
-
+    ReceiveDataCAN(FT_LOCAL);
     /* If a macro is seen on the global bus from the router card*/
     if (getNewDataFlagStatus(FT_GLOBAL, getGBL_MACRO_INDEX(ROUTER_CARD))) {
 
         int macroID = getCANFastData(FT_GLOBAL, getGBL_MACRO_INDEX(ROUTER_CARD));
         int macroDATA = getCANFastData(FT_GLOBAL, getGBL_MACRO_INDEX(ROUTER_CARD) + 1);
-        if (macroID == 0) {
-            clearMacros();
-        } else {
-            /* Add the macro to the queue*/
-            switch (macroID) {
-                case dumbMac1:
-                    setMacroCallback(Dummy, 5000, dumbMac1);
-                    //setMacroCallback(Dummy2, 15000, 2);
-                    break;
-                default:
-                    break;
-            }
-
-        }
+        handleCANmacro(macroID, macroDATA);
     }
-    if (ReceiveDataCAN(FT_LOCAL)) {
-
+    if (getNewDataFlagStatus(FT_LOCAL, CAN_COMMAND_INDEX)) {
+        int macroID = getCANFastData(FT_LOCAL, CAN_COMMAND_INDEX);
+        int macroDATA = getCANFastData(FT_LOCAL, CAN_COMMAND_DATA_INDEX);
+        handleCANmacro(macroID, macroDATA);
     }
 
 }
 
-void handleCANmacro(short macroIndex, short macroData) {
-    setTimerInterval(&clearMacroTimer, 700);
-    setTimerInterval(&ClearTimer, 100);
-    switch (macroIndex) {
-        case MACRO_CLEAR:
-            clearMacros();
-            while (!timerDone(&clearMacroTimer)) {
-                while (!timerDone(&ClearTimer));
-                LED2 ^= 1;
-                LED3 ^= 1;
-            }
-            LED2 = off;
-            break;
+void handleCANmacro(short _macroID, short _macroDATA) {
+    if (_macroID == 0) {
+        clearMacros();
+        if (RobotPath != NULL)
+            LL_clear(RobotPath);
+    } else {
+        /* Add the macro to the queue*/
+        switch (_macroID) {
 
-            /*********************** E X T E R N A L   M A C R O S*************************/
-      
-            /*********************** I N T E R N A L   M A C R O S*************************/
-        case FULL_AUTO:
-
-            //resetAutonomousSystem();
-            break;
-        case START_CENTER:
-            break;
-        case FULL_DIGGING:
-
-            break;
-        case FULL_AUTO_2:
-
-            break;
-        case EMPTY_7:
-
-            break;
-        case EMPTY_6:
-
-            break;
-        case EMPTY_5:
-
-            break;
-        case EMPTY_4:
-
-
-            break;
+            case TEST_DRIVE:
+                setMacroCallback(RunPath, _macroDATA, TEST_DRIVE);
+                break;
+            default:
+                break;
+        }
     }
 }
 
@@ -166,70 +130,83 @@ bool noWaiting() {
     return DONE;
 }
 
-point_t pathFrom = {0, 0};
-point_t pathTo = {0, 100};
-LL_t *RobotPath;
-void InitPathAlgorithm();
-void addStopToPath(point_t _stopPoint);
-bool RunPath(int nan);
-
 void testPathAlgorithm() {
-    //InitPathAlgorithm();
+
     RobotPath = LL_init();
+
+    receivePozyx();
+    pathFrom = getLocation();
     getPolarPath(RobotPath, pathFrom, pathTo);
-    setMacroCallback(RunPath, 0, 3);
-    MacroRunning = true;
-
-    addStopToPath((point_t) {
-        100, 100});
-
-    addStopToPath((point_t) {
-        100, 0});
-    addStopToPath((point_t) {
-        0, 0});
-    //addStopToPath((point_t){0, 0});
+    //    addStopToPath((point_t) {
+    //        100, 100
+    //    });
+    //    addStopToPath((point_t) {
+    //        100, 0
+    //    });
+    //
+    //    addStopToPath((point_t) {
+    //        0, 0
+    //    });
+    //    addStopToPath((point_t){0, 0});
 }
 
 typedef enum {
-    ROTATION = 0,
-    DRIVE
+    Init = 0,
+    ROTATION,
+    DRIVE,
+    GyroWait,
+    MotorResend
 } PathFollowStep_t;
-PathFollowStep_t pathSteps = ROTATION;
+PathFollowStep_t pathSteps = Init;
 double gyroHeading, motorDist;
 double myHeading = 0;
+int data;
+point_t testPoint;
 
 bool RunPath(int nan) {
-    if (getGyroControllerStatus() == DONE && getMotorControllerStatus() == DONE) {
-        if (RobotPath->size < 1) {
-            macroComplete(0);
-            return true;
+    if (getMotorControllerStatus() == DONE ) {
+        if (pathSteps == Init) {
+            testPathAlgorithm();
+            pathSteps = DRIVE;
+        } else {
+            if (RobotPath != 0 && RobotPath->size < 1 && pathSteps != MotorResend) {
+                LL_destroy(RobotPath);
+                return true;
+            }
         }
+
+        receivePozyx();
+        myHeading = getPozyxHeading();
         switch (pathSteps) {
-            case ROTATION:
-                gyroHeading = ((waypoint_t*) (RobotPath->first->data))->heading;
-                if (gyroHeading > myHeading) {
-                    gyroHeading = gyroHeading - myHeading;
-                } else {
-                    gyroHeading = myHeading - gyroHeading;
-                }
-                if(gyroHeading > 180)
-                    gyroHeading -= 180;
-                setGyroMacro(ROTATION_COMMAND,  gyroHeading );
-                myHeading += gyroHeading;
-                pathSteps = DRIVE;
-                break;
+
             case DRIVE:
                 motorDist = ((waypoint_t*) (RobotPath->first->data))->Distance;
-                setMotorMacro(ENCODER_COMMAND, motorDist);
+                testPoint = (point_t) ((waypoint_t*) (RobotPath->first->data))->Endpoint;
+                //data = (((waypoint_t*)(RobotPath->first->data))->Endpoint.x << 8) |(((waypoint_t*)(RobotPath->first->data))->Endpoint.y & 0xff); 
+                data = (uint16_t) ((testPoint.y & 0xFF) | ((testPoint.x & 0xFF) << 8));
+
+
+                setMotorMacro(AUTO_DRIVE_MACRO, (uint16_t) ((testPoint.y & 0xFF) | ((testPoint.x & 0xFF) << 8))); // motorDist*10);
                 LL_pop(RobotPath);
-                pathSteps = ROTATION;
+                pathSteps = MotorResend;
+                setTimerInterval(&Retransmit, 1000);
+                resetTimer(&Retransmit);
+                break;
+            case MotorResend:
+                delay(1500);
+                ReceiveDataCAN(FT_GLOBAL);
+                if (((getMotorControllerStatus() & AUTO_DRIVE_MACRO) == 0) && timerDone(&Retransmit)) {
+                    setMotorMacro(AUTO_DRIVE_MACRO, (uint16_t) ((testPoint.y & 0xFF) | ((testPoint.x & 0xFF) << 8)));
+                }else{
+                    pathSteps = DRIVE;
+                }
                 break;
         }
+    } else {
+        pathSteps = DRIVE;
     }
     return false;
 }
-
-
 
 void addStopToPath(point_t _stopPoint) {
     point_t endpoint = ((point_t) ((waypoint_t*) RobotPath->last->data)->Endpoint);
