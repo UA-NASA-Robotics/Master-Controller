@@ -96,10 +96,10 @@ void APP_Initialize(void) {
     }
 //    handleCANmacro(1<<2, 0);
     
-    int y;
-    for(y = 0;y<20;y++){
-        addObtaclePoint(15, y);
-    }
+//    int y;
+//    for(y = 0;y<20;y++){
+//        addObtaclePoint(15, y);
+//    }
 //    for(y = 10;y<getWorldWidth();y++){
 //        addObtaclePoint(35, y);
 //    }
@@ -137,7 +137,7 @@ void APP_Tasks(void) {
         {
             if (getRunningMacros() != 0) {
                 runMacros();
-                
+                LED1^=1;
             }
             if(timerDone(&sec)){
                 LED4 ^=1;

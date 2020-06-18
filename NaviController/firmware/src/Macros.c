@@ -44,7 +44,7 @@ unsigned char MacroState = 0;
 
 
 point_t pathFrom = {50, 50};
-point_t pathTo = {25, 10  };
+point_t pathTo = {20, 30};
 LL_t *RobotPath;
 void addStopToPath(point_t _stopPoint);
 bool RunPath(int nan);
@@ -154,7 +154,7 @@ typedef enum {
     Init = 0,
     ROTATION,
     DRIVE,
-    GyroWait,
+    Wait,
     MotorResend
 } PathFollowStep_t;
 PathFollowStep_t pathSteps = Init;
@@ -164,14 +164,17 @@ int data;
 point_t testPoint;
 
 bool RunPath(int nan) {
-    if (getMotorControllerStatus() == DONE ) {
+    data = getMotorControllerStatus();
+    if (data == (int)DONE ) {
         if (pathSteps == Init) {
             testPathAlgorithm();
             pathSteps = DRIVE;
-        } else {
-            if (RobotPath != 0 && RobotPath->size < 1 && pathSteps != MotorResend) {
+        } else if(pathSteps == Wait) {
+            if (RobotPath != 0 || RobotPath->size < 1 || pathSteps != MotorResend) {
                 LL_destroy(RobotPath);
                 return true;
+            }else{
+                pathSteps = DRIVE;
             }
         }
 
@@ -193,7 +196,7 @@ bool RunPath(int nan) {
                 resetTimer(&Retransmit);
                 break;
             case MotorResend:
-                delay(1500);
+                delay(1000);
                 ReceiveDataCAN(FT_GLOBAL);
                 if (((getMotorControllerStatus() & AUTO_DRIVE_MACRO) == 0) && timerDone(&Retransmit)) {
                     setMotorMacro(AUTO_DRIVE_MACRO, (uint16_t) ((testPoint.y & 0xFF) | ((testPoint.x & 0xFF) << 8)));
@@ -202,8 +205,8 @@ bool RunPath(int nan) {
                 }
                 break;
         }
-    } else {
-        pathSteps = DRIVE;
+    } else if(pathSteps == MotorResend){
+        pathSteps = Wait;
     }
     return false;
 }
