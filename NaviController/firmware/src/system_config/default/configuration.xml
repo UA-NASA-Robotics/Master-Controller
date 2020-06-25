@@ -154,7 +154,8 @@
       <Template dnOrder="0">
         <Name dnOrder="0">sys_ports_static.c</Name>
         <Path dnOrder="1">Source&amp;#160;Files/app/system_config/default/framework/system/ports/src</Path>
-        <Checksum dnOrder="2">F940B6CE443ED961A028F6D688137FE3</Checksum>
+        <Checksum dnOrder="2">1312E2E94CBD97FBEB31CE2E84054F52</Checksum>
+        <ProjectFileChecksum dnOrder="3">8F9EEA68505F86E08B07676EB8471183</ProjectFileChecksum>
       </Template>
       <Template dnOrder="1">
         <Name dnOrder="0">system_init.c</Name>
@@ -237,7 +238,8 @@
       <Template dnOrder="17">
         <Name dnOrder="0">system_config.h</Name>
         <Path dnOrder="1">Header&amp;#160;Files/app/system_config/default</Path>
-        <Checksum dnOrder="2">B880DE0D7FDB2B7C96EEA949E6A606E4</Checksum>
+        <Checksum dnOrder="2">5AC2B9FF48D6E7653DCDE9BFCF020D01</Checksum>
+        <ProjectFileChecksum dnOrder="3">9206D59CE9F2ED8A85F371FD6B2086C2</ProjectFileChecksum>
       </Template>
       <Template dnOrder="18">
         <Name dnOrder="0">app.h</Name>
@@ -256,7 +258,7 @@
       <Template dnOrder="21">
         <Name dnOrder="0">system_interrupt.c</Name>
         <Path dnOrder="1">Source&amp;#160;Files/app/system_config/default</Path>
-        <Checksum dnOrder="2">3711EB54FC5221C9BEA184F158040338</Checksum>
+        <Checksum dnOrder="2">C41F7B7CEC4FEE5F4EEBE593A22CC614</Checksum>
         <ProjectFileChecksum dnOrder="3">5D836A299102A8D4904C1939056A860D</ProjectFileChecksum>
       </Template>
       <Template dnOrder="22">

@@ -56,6 +56,7 @@ bool gyroState = DONE, motorState = DONE;
 typedef enum {
     Init = 0,
     DRIVE,
+            Wait,
     MotorResend
 } PathFollowStep_t;
 PathFollowStep_t pathSteps = Init;
@@ -131,14 +132,7 @@ void testPathAlgorithm() {
     //    addStopToPath((point_t){0, 0});
 }
 
-typedef enum {
-    Init = 0,
-    ROTATION,
-    DRIVE,
-    GyroWait,
-    MotorResend
-} PathFollowStep_t;
-PathFollowStep_t pathSteps = Init;
+
 double gyroHeading, motorDist;
 double myHeading = 0;
 int data;

@@ -142,7 +142,6 @@ void APP_Tasks(void) {
         }
         case APP_STATE_COMS_CHECK:
         {
-            receivePozyx();
             handleMacroStatus();
             publishData();
             appData.state = APP_STATE_SERVICE_MACRO;
