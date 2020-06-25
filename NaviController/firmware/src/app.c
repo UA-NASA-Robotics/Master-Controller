@@ -40,7 +40,7 @@ void APP_Initialize(void) {
 
     /* Place the App state machine in its initial state. */
     appData.state = APP_STATE_INIT;
-    initChangeNotification();
+    
 
     LED1 = off;
     LED2 = off;
@@ -66,11 +66,10 @@ void APP_Initialize(void) {
     //InitFastTransferModule(&MotorFT, Motor_UART, MY_ADDRESS, Send_put, Buffer_Get, Buffer_Size, Buffer_Peek);
     //InitFastTransferModule(&GyroFT, Gyro_UART, MY_ADDRESS, Send_put, Buffer_Get, Buffer_Size, Buffer_Peek);
 
-    InitPozyx();
 
 
     DRV_CAN0_Open();
-    
+
     InitializePathPlanning();
 
     isLoaded = true;
@@ -79,9 +78,6 @@ void APP_Initialize(void) {
     InitDataPublishing();
     //initGlobalData(DEVICE_STATUS, getLoadedState, 500);
     initGlobalData(DEVICE_MACRO, getRunningMacros, 500);
-    initGlobalData(DATA_0, getXpos, 200);
-    initGlobalData(DATA_1, getYpos, 200);
-    initGlobalData(DATA_3, getPozyxHeading, 200);
 
     /* Play pattern on the LEDs */
     while (!timerDone(&bootTimer)) {
@@ -94,15 +90,15 @@ void APP_Initialize(void) {
         LED4 ^= 1;
         delay(50);
     }
-//    handleCANmacro(1<<2, 0);
-    
+    //    handleCANmacro(1<<2, 0);
+//
 //    int y;
-//    for(y = 0;y<20;y++){
+//    for (y = 0; y < 20; y++) {
 //        addObtaclePoint(15, y);
 //    }
-//    for(y = 10;y<getWorldWidth();y++){
-//        addObtaclePoint(35, y);
-//    }
+    //    for(y = 10;y<getWorldWidth();y++){
+    //        addObtaclePoint(35, y);
+    //    }
 
 
     appData.state = APP_STATE_INIT;
@@ -110,7 +106,6 @@ void APP_Initialize(void) {
 
 
 
-intPin_t* awaitPin;
 int NEXT_APP_STATE = 0;
 
 void APP_Tasks(void) {
@@ -137,35 +132,16 @@ void APP_Tasks(void) {
         {
             if (getRunningMacros() != 0) {
                 runMacros();
-                LED1^=1;
+
             }
-            if(timerDone(&sec)){
-                LED4 ^=1;
+            if (timerDone(&sec)) {
+                LED4 ^= 1;
             }
             appData.state = APP_STATE_AWAITING_RESPONSE;
             break;
         }
         case APP_STATE_COMS_CHECK:
         {
-
-            //            if (timerDone(&receiveTimer)) {
-            //                // CAN FastTransfer Receive
-            //                if (ReceiveDataCAN(FT_LOCAL)) {
-            //
-            //                    if (getNewDataFlagStatus(FT_LOCAL,0x02)) {
-            //                        resetTimer(&BlinkTime);
-            //                        while (!timerDone(&BlinkTime)) {
-            //                            while (!timerDone(&ms100));
-            //                            LED1 ^= 1;
-            //                            LED4 ^= 1;
-            //                        }
-            //
-            //                    }
-            //                    if (getNewDataFlagStatus(FT_LOCAL,1 << CAN_COMMAND_INDEX)) {
-            //                        handleCANmacro(getCANFastData(FT_LOCAL,CAN_COMMAND_INDEX), getCANFastData(FT_LOCAL,CAN_COMMAND_DATA_INDEX)); 
-            //                    }
-            //                }
-            //            }
             receivePozyx();
             handleMacroStatus();
             publishData();

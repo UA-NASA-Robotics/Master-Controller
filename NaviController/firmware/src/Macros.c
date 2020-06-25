@@ -20,20 +20,7 @@
 //                      DEFINITIONS
 //*********************************************************
 
-#define CENTER_DRIVE_DISTANCE       50   //DISTANCE FROM STARTING TO CENTER OF ARENA
-#define MIGRATION_DISTANCE_DIGGING  350
-#define MIGRATION_DISTANCE_DUMPING  350
-#define PLOWING_DISTANCE            100
-#define FORWARD                     true
-#define BACKWARD                    false
-#define StartDriveDist              20
 #define PointToDig                 (point_t){650,200}
-
-
-
-#define START_INFO_DIST_MASK  0x7FFF
-#define StartInfo_Side_Mask  0x8000     // MSB = 1 (robot is in front of the master lider): MAB = 0 (Robot is in front of the slave Lidar)
-
 
 
 
@@ -43,12 +30,13 @@ bool autoWaiting = false;
 unsigned char MacroState = 0;
 
 
-point_t pathFrom = {50, 50};
-point_t pathTo = {20, 30};
+point_t pathFrom = {10, 10};
+point_t pathTo = {20, 20};
 LL_t *RobotPath;
+
+
 void addStopToPath(point_t _stopPoint);
 bool RunPath(int nan);
-
 void setWaiter(bool(*_waitingOn)());
 bool(*waitingOn)();
 bool waiting = false;
@@ -64,6 +52,13 @@ bool noWaiting();
 
 bool gyroState = DONE, motorState = DONE;
 
+
+typedef enum {
+    Init = 0,
+    DRIVE,
+    MotorResend
+} PathFollowStep_t;
+PathFollowStep_t pathSteps = Init;
 
 
 
@@ -108,26 +103,12 @@ void handleCANmacro(short _macroID, short _macroDATA) {
 
             case TEST_DRIVE:
                 setMacroCallback(RunPath, _macroDATA, TEST_DRIVE);
+              
                 break;
             default:
                 break;
         }
     }
-}
-
-bool isWaiting() {
-    if (waitingOn == NULL) {
-        return DONE;
-    }
-    return waitingOn();
-}
-
-void setWaiter(bool(*_waitingOn)()) {
-    waitingOn = _waitingOn;
-}
-
-bool noWaiting() {
-    return DONE;
 }
 
 void testPathAlgorithm() {
@@ -154,7 +135,7 @@ typedef enum {
     Init = 0,
     ROTATION,
     DRIVE,
-    Wait,
+    GyroWait,
     MotorResend
 } PathFollowStep_t;
 PathFollowStep_t pathSteps = Init;
@@ -164,43 +145,49 @@ int data;
 point_t testPoint;
 
 bool RunPath(int nan) {
-    data = getMotorControllerStatus();
-    if (data == (int)DONE ) {
+    if (getMotorControllerStatus() == DONE ) {
         if (pathSteps == Init) {
+            /* Build the new path */
             testPathAlgorithm();
+            /* Set the first stage if the state machine */
             pathSteps = DRIVE;
         } else if(pathSteps == Wait) {
             if (RobotPath != 0 || RobotPath->size < 1 || pathSteps != MotorResend) {
                 LL_destroy(RobotPath);
+                pathSteps = Init;
                 return true;
             }else{
                 pathSteps = DRIVE;
             }
         }
-
         receivePozyx();
         myHeading = getPozyxHeading();
         switch (pathSteps) {
-
             case DRIVE:
-                motorDist = ((waypoint_t*) (RobotPath->first->data))->Distance;
+                /* Getting the next point in the path to go to */
                 testPoint = (point_t) ((waypoint_t*) (RobotPath->first->data))->Endpoint;
-                //data = (((waypoint_t*)(RobotPath->first->data))->Endpoint.x << 8) |(((waypoint_t*)(RobotPath->first->data))->Endpoint.y & 0xff); 
+                //data = (((waypoint_t*)(RobotPath->first->data))->Endpoint.x << 8) |(((waypoint_t*)(RobotPath->first->data))->Endpoint.y & 0xff);
+                /* Packaging the location into a single byte to send to the motor processor */
                 data = (uint16_t) ((testPoint.y & 0xFF) | ((testPoint.x & 0xFF) << 8));
-
-
-                setMotorMacro(AUTO_DRIVE_MACRO, (uint16_t) ((testPoint.y & 0xFF) | ((testPoint.x & 0xFF) << 8))); // motorDist*10);
+                /* Sending the  X & Y location data in one 16 bit word to the motor processor for Macro Processing */
+                setMotorMacro(AUTO_DRIVE_MACRO, (uint16_t) ((testPoint.y & 0xFF) | ((testPoint.x & 0xFF) << 8)));
+                /* Removing the point from the path list */
                 LL_pop(RobotPath);
+                /* Making the next stage of the state machine to run */
                 pathSteps = MotorResend;
+                /* Setting the timer that will trigger a macro retransmit if the macro hasn't been set */
                 setTimerInterval(&Retransmit, 1000);
                 resetTimer(&Retransmit);
                 break;
             case MotorResend:
-                delay(1000);
+                delay(1500);
                 ReceiveDataCAN(FT_GLOBAL);
+                /* if the Motor Controller hasn't set its macro with in this timer we will resend the macro */
                 if (((getMotorControllerStatus() & AUTO_DRIVE_MACRO) == 0) && timerDone(&Retransmit)) {
+                    /* Sending the  X & Y location data in one 16 bit word to the motor processor for Macro Processing */
                     setMotorMacro(AUTO_DRIVE_MACRO, (uint16_t) ((testPoint.y & 0xFF) | ((testPoint.x & 0xFF) << 8)));
-                }else{
+                } else {
+                    /* the macro is started so set the next stage of the state machine to get the next point in the path */
                     pathSteps = DRIVE;
                 }
                 break;
@@ -209,6 +196,42 @@ bool RunPath(int nan) {
         pathSteps = Wait;
     }
     return false;
+}
+
+typedef enum {
+    Start = 0,
+    PreDriveDig,
+    Drive,
+    RobotMesh,
+    Dump
+} FullAuto_t;
+FullAuto_t FA_step = Start;
+
+bool FullAuto(int nan) {
+    /* Is there a macro running on the Motor Controller */
+    if (getMotorControllerStatus() == DONE && getMotorControllerStatus() == DONE) {
+        return false;
+    }
+    switch (FA_step) {
+        case Start:
+            /* Set the Pozyx to initialization state */
+            /* Rotate robot 50 degrees to get the Gyros Initialized */
+            /* Is the Secondary Robot connected to the system? */
+            
+            break;
+        case Drive:
+            /* When we have successfully navigated to our destination we will move to the next state */
+            if(RunPath(0) == true)
+                
+            break;
+        case PreDriveDig:
+            RobotPath = LL_init();
+            receivePozyx();
+            pathFrom = getLocation();
+            
+            getPolarPath(RobotPath, pathFrom, pathTo);
+            break;
+    }
 }
 
 void addStopToPath(point_t _stopPoint) {

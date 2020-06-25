@@ -1,7 +1,7 @@
 #ifndef MAP_H_INCLUDED
 #define MAP_H_INCLUDED
 
-
+void addObtaclePoint(int x, int y);
 void ClearWorld();
 
 /** \brief: This function given and X & Y value will provide a 1 for

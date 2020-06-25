@@ -237,7 +237,7 @@
       <Template dnOrder="17">
         <Name dnOrder="0">system_config.h</Name>
         <Path dnOrder="1">Header&amp;#160;Files/app/system_config/default</Path>
-        <Checksum dnOrder="2">AE7F4C77589734A5CB57BF0C8011B49D</Checksum>
+        <Checksum dnOrder="2">B880DE0D7FDB2B7C96EEA949E6A606E4</Checksum>
       </Template>
       <Template dnOrder="18">
         <Name dnOrder="0">app.h</Name>
@@ -257,7 +257,7 @@
         <Name dnOrder="0">system_interrupt.c</Name>
         <Path dnOrder="1">Source&amp;#160;Files/app/system_config/default</Path>
         <Checksum dnOrder="2">3711EB54FC5221C9BEA184F158040338</Checksum>
-        <ProjectFileChecksum dnOrder="3">354C4925EE9D3E5F8384797B768EA604</ProjectFileChecksum>
+        <ProjectFileChecksum dnOrder="3">5D836A299102A8D4904C1939056A860D</ProjectFileChecksum>
       </Template>
       <Template dnOrder="22">
         <Name dnOrder="0">sys_clk_pic32mz.c</Name>
@@ -267,11 +267,11 @@
     </Templates>
     <CompilerItems dnOrder="2">
       <C32 dnOrder="0">
-        <Include dnOrder="0" value="C:\microchip\harmony\v2_05_01\apps\Audree2.0\NaviController\firmware\src"/>
-        <Include dnOrder="1" value="C:\microchip\harmony\v2_05_01\apps\Audree2.0\NaviController\firmware\src\system_config\default"/>
-        <Include dnOrder="2" value="C:\microchip\harmony\v2_05_01\apps\Audree2.0\NaviController\firmware\src\default"/>
+        <Include dnOrder="0" value="C:\microchip\harmony\v2_05_01\apps\Master-Controller\NaviController\firmware\src"/>
+        <Include dnOrder="1" value="C:\microchip\harmony\v2_05_01\apps\Master-Controller\NaviController\firmware\src\system_config\default"/>
+        <Include dnOrder="2" value="C:\microchip\harmony\v2_05_01\apps\Master-Controller\NaviController\firmware\src\default"/>
         <Include dnOrder="3" value="C:\microchip\harmony\v2_05_01\framework"/>
-        <Include dnOrder="4" value="C:\microchip\harmony\v2_05_01\apps\Audree2.0\NaviController\firmware\src\system_config\default\framework"/>
+        <Include dnOrder="4" value="C:\microchip\harmony\v2_05_01\apps\Master-Controller\NaviController\firmware\src\system_config\default\framework"/>
       </C32>
     </CompilerItems>
     <Libraries dnOrder="3">

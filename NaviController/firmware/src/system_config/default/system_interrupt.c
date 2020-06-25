@@ -127,7 +127,7 @@ void __ISR(_UART3_FAULT_VECTOR, ipl4AUTO) _IntHandlerDrvUsartErrorInstance2(void
 {
     if(getLoadedState())
     {
-       pinChangeNotified();
+       //pinChangeNotified();
     }
     PORTB;
     PLIB_INT_SourceFlagClear(INT_ID_0,INT_SOURCE_CHANGE_NOTICE_B);
@@ -136,7 +136,7 @@ void __ISR(_UART3_FAULT_VECTOR, ipl4AUTO) _IntHandlerDrvUsartErrorInstance2(void
 {
     if(getLoadedState())
     {
-       pinChangeNotified();
+      // pinChangeNotified();
     }
     PORTC;
     PLIB_INT_SourceFlagClear(INT_ID_0,INT_SOURCE_CHANGE_NOTICE_C);
@@ -145,7 +145,7 @@ void __ISR(_UART3_FAULT_VECTOR, ipl4AUTO) _IntHandlerDrvUsartErrorInstance2(void
 {
     if(getLoadedState())
     {
-       pinChangeNotified();
+       //pinChangeNotified();
     }
     PORTD;
     PLIB_INT_SourceFlagClear(INT_ID_0,INT_SOURCE_CHANGE_NOTICE_D);

@@ -62,7 +62,6 @@
         <itemPath>../src/bufferHandler.h</itemPath>
         <itemPath>../src/Timers.h</itemPath>
         <itemPath>../src/uart_Handler.h</itemPath>
-        <itemPath>../src/changeNotification.h</itemPath>
         <itemPath>../src/FastTransfer.h</itemPath>
         <itemPath>../src/Definitions.h</itemPath>
         <itemPath>../src/Macros.h</itemPath>
@@ -217,7 +216,6 @@
         <itemPath>../src/bufferHandler.c</itemPath>
         <itemPath>../src/Timers.c</itemPath>
         <itemPath>../src/uart_Handler.c</itemPath>
-        <itemPath>../src/changeNotification.c</itemPath>
         <itemPath>../src/FastTransfer.c</itemPath>
         <itemPath>../src/Macros.c</itemPath>
         <itemPath>../src/Comunications.c</itemPath>
@@ -257,7 +255,6 @@
     <Elem>..\src</Elem>
     <Elem>..\src\default</Elem>
     <Elem>..\src\system_config\default</Elem>
-    <Elem>../../../../R_MotorController/MotorController/firmware/src</Elem>
   </sourceRootList>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
@@ -311,7 +308,7 @@
         <property key="enable-unroll-loops" value="false"/>
         <property key="exclude-floating-point" value="false"/>
         <property key="extra-include-directories"
-                  value="../src;../src/system_config/default;../src/default;../src/system_config/default/framework;../../../../../framework"/>
+                  value="../src;../src/system_config/default;../src/default;../../../../../framework;../src/system_config/default/framework"/>
         <property key="generate-16-bit-code" value="false"/>
         <property key="generate-micro-compressed-code" value="false"/>
         <property key="isolate-each-function" value="true"/>

@@ -8,20 +8,34 @@
 #define DATA_ELEMENTS_COUNT 7
 timers_t dataPeriodTimer[DATA_ELEMENTS_COUNT];
 int (*dataRetrievalFunc[DATA_ELEMENTS_COUNT])();
+/* Clears all the get funciton pointers and transmission timers */
 void InitDataPublishing()
 {
     int i;
     for( i = 0;i< DATA_ELEMENTS_COUNT;i++)
     {
         dataRetrievalFunc[i] = NULL;
+        dataPeriodTimer[i].timerInterval = 0;
     }
 }
+/** \brief: Adds the function pointer to get data and the interval to
+ *          send the data over the can bus
+ *
+ * \        _index:  placement of 1 of 7 indexes allowed for each device in the global can bus
+ * \getFuncPointer:  Function pointer to a getter function that returns the data you want to send 
+ * \     _interval:  The frequency that you want to send the data
+ * 
+ * \return: N\A
+ */
 void initGlobalData(GlobalDeviceData_t _index, int (*getFuncPointer)(void), unsigned long _interval) {
     setTimerInterval(&dataPeriodTimer[_index], _interval);
     dataRetrievalFunc[_index] = getFuncPointer;
 
 }
-
+/** \brief: publish the data that has been set up using the 'initGlobalData'
+ *
+ * \return: return true if data has been sent
+ */
 bool publishData() {
     int i;
     bool validData = false;
