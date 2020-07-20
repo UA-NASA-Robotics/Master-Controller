@@ -154,13 +154,12 @@
       <Template dnOrder="0">
         <Name dnOrder="0">sys_ports_static.c</Name>
         <Path dnOrder="1">Source&amp;#160;Files/app/system_config/default/framework/system/ports/src</Path>
-        <Checksum dnOrder="2">1312E2E94CBD97FBEB31CE2E84054F52</Checksum>
-        <ProjectFileChecksum dnOrder="3">8F9EEA68505F86E08B07676EB8471183</ProjectFileChecksum>
+        <Checksum dnOrder="2">F60C71364C129A32FFCDBE0BF92C3A2C</Checksum>
       </Template>
       <Template dnOrder="1">
         <Name dnOrder="0">system_init.c</Name>
         <Path dnOrder="1">Source&amp;#160;Files/app/system_config/default</Path>
-        <Checksum dnOrder="2">311AEDAC0EED62ABC1A9CA8151EF1BE6</Checksum>
+        <Checksum dnOrder="2">AD5246563F95B5485E5CB12CF7094A25</Checksum>
       </Template>
       <Template dnOrder="2">
         <Name dnOrder="0">sys_devcon_cache.h</Name>
@@ -238,8 +237,7 @@
       <Template dnOrder="17">
         <Name dnOrder="0">system_config.h</Name>
         <Path dnOrder="1">Header&amp;#160;Files/app/system_config/default</Path>
-        <Checksum dnOrder="2">5AC2B9FF48D6E7653DCDE9BFCF020D01</Checksum>
-        <ProjectFileChecksum dnOrder="3">9206D59CE9F2ED8A85F371FD6B2086C2</ProjectFileChecksum>
+        <Checksum dnOrder="2">3597665E4EBDFA47F3B103B2764C6D4E</Checksum>
       </Template>
       <Template dnOrder="18">
         <Name dnOrder="0">app.h</Name>
@@ -258,8 +256,8 @@
       <Template dnOrder="21">
         <Name dnOrder="0">system_interrupt.c</Name>
         <Path dnOrder="1">Source&amp;#160;Files/app/system_config/default</Path>
-        <Checksum dnOrder="2">C41F7B7CEC4FEE5F4EEBE593A22CC614</Checksum>
-        <ProjectFileChecksum dnOrder="3">5D836A299102A8D4904C1939056A860D</ProjectFileChecksum>
+        <Checksum dnOrder="2">E92B7FF073A2A9C5C81097F9491D763C</Checksum>
+        <ProjectFileChecksum dnOrder="3">8DF1698CE885E1218BA8A4F70076C1CA</ProjectFileChecksum>
       </Template>
       <Template dnOrder="22">
         <Name dnOrder="0">sys_clk_pic32mz.c</Name>
@@ -269,11 +267,11 @@
     </Templates>
     <CompilerItems dnOrder="2">
       <C32 dnOrder="0">
-        <Include dnOrder="0" value="C:\microchip\harmony\v2_05_01\apps\Master-Controller\NaviController\firmware\src"/>
-        <Include dnOrder="1" value="C:\microchip\harmony\v2_05_01\apps\Master-Controller\NaviController\firmware\src\system_config\default"/>
-        <Include dnOrder="2" value="C:\microchip\harmony\v2_05_01\apps\Master-Controller\NaviController\firmware\src\default"/>
-        <Include dnOrder="3" value="C:\microchip\harmony\v2_05_01\framework"/>
-        <Include dnOrder="4" value="C:\microchip\harmony\v2_05_01\apps\Master-Controller\NaviController\firmware\src\system_config\default\framework"/>
+        <Include dnOrder="0" value="C:\microchip\harmony\v2_06\apps\Master-Controller\NaviController\firmware\src"/>
+        <Include dnOrder="1" value="C:\microchip\harmony\v2_06\apps\Master-Controller\NaviController\firmware\src\system_config\default"/>
+        <Include dnOrder="2" value="C:\microchip\harmony\v2_06\apps\Master-Controller\NaviController\firmware\src\default"/>
+        <Include dnOrder="3" value="C:\microchip\harmony\v2_06\framework"/>
+        <Include dnOrder="4" value="C:\microchip\harmony\v2_06\apps\Master-Controller\NaviController\firmware\src\system_config\default\framework"/>
       </C32>
     </CompilerItems>
     <Libraries dnOrder="3">

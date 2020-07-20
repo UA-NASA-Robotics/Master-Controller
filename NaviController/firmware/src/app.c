@@ -40,7 +40,7 @@ void APP_Initialize(void) {
 
     /* Place the App state machine in its initial state. */
     appData.state = APP_STATE_INIT;
-    
+    //initChangeNotification();
 
     LED1 = off;
     LED2 = off;
@@ -55,7 +55,7 @@ void APP_Initialize(void) {
     setTimerInterval(&sec, 1000);
     setTimerInterval(&ms100, 100);
     setTimerInterval(&ledTime, 50);
-
+    InitPozyx();
 
     /* Turning on the Timer the Runs the System's timers_t */
     DRV_TMR0_Start();
@@ -65,7 +65,6 @@ void APP_Initialize(void) {
 
     //InitFastTransferModule(&MotorFT, Motor_UART, MY_ADDRESS, Send_put, Buffer_Get, Buffer_Size, Buffer_Peek);
     //InitFastTransferModule(&GyroFT, Gyro_UART, MY_ADDRESS, Send_put, Buffer_Get, Buffer_Size, Buffer_Peek);
-
 
 
     DRV_CAN0_Open();
@@ -91,11 +90,11 @@ void APP_Initialize(void) {
         delay(50);
     }
     //    handleCANmacro(1<<2, 0);
-//
-//    int y;
-//    for (y = 0; y < 20; y++) {
-//        addObtaclePoint(15, y);
-//    }
+
+    //    int y;
+    //    for(y = 0;y<20;y++){
+    //        addObtaclePoint(15, y);
+    //    }
     //    for(y = 10;y<getWorldWidth();y++){
     //        addObtaclePoint(35, y);
     //    }
@@ -132,7 +131,7 @@ void APP_Tasks(void) {
         {
             if (getRunningMacros() != 0) {
                 runMacros();
-
+                LED1 ^= 1;
             }
             if (timerDone(&sec)) {
                 LED4 ^= 1;
