@@ -44,7 +44,7 @@ int getInicialHeading() {
 void CalcInicialHeading() {
     int16_t pozyxHeading = 0;
     receiveData(&PozyxFT);
-    pozyxHeading = (int16_t)getPozyxHeading();
+    pozyxHeading = (int16_t)getCANFastData(FT_GLOBAL, getGBL_Data(GYRO_CONTROLLER, DATA_0));
 
     if (pozyxHeading < 45 && pozyxHeading > -45)
         HeadingVal = 0;

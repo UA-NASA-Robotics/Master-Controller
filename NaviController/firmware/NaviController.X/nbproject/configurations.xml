@@ -62,6 +62,7 @@
         <itemPath>../src/bufferHandler.h</itemPath>
         <itemPath>../src/Timers.h</itemPath>
         <itemPath>../src/uart_Handler.h</itemPath>
+        <itemPath>../src/changeNotification.h</itemPath>
         <itemPath>../src/FastTransfer.h</itemPath>
         <itemPath>../src/Definitions.h</itemPath>
         <itemPath>../src/Macros.h</itemPath>
@@ -216,6 +217,7 @@
         <itemPath>../src/bufferHandler.c</itemPath>
         <itemPath>../src/Timers.c</itemPath>
         <itemPath>../src/uart_Handler.c</itemPath>
+        <itemPath>../src/changeNotification.c</itemPath>
         <itemPath>../src/FastTransfer.c</itemPath>
         <itemPath>../src/Macros.c</itemPath>
         <itemPath>../src/Comunications.c</itemPath>
@@ -255,6 +257,7 @@
     <Elem>..\src</Elem>
     <Elem>..\src\default</Elem>
     <Elem>..\src\system_config\default</Elem>
+    <Elem>../../../../R_MotorController/MotorController/firmware/src</Elem>
   </sourceRootList>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
@@ -266,12 +269,14 @@
         <targetPluginBoard></targetPluginBoard>
         <platformTool>pk4hybrid</platformTool>
         <languageToolchain>XC32</languageToolchain>
-        <languageToolchainVersion>2.20</languageToolchainVersion>
+        <languageToolchainVersion>2.41</languageToolchainVersion>
         <platform>3</platform>
       </toolsSet>
       <packs>
         <pack name="PIC32MZ-EF_DFP" vendor="Microchip" version="1.0.20"/>
       </packs>
+      <ScriptingSettings>
+      </ScriptingSettings>
       <compileType>
         <linkerTool>
           <linkerLibItems>
@@ -347,6 +352,9 @@
         <property key="preprocessor-macros" value=""/>
         <property key="warning-level" value=""/>
       </C32-AS>
+      <C32-CO>
+        <property key="coverage-enable" value=""/>
+      </C32-CO>
       <C32-LD>
         <property key="additional-options-use-response-files" value="false"/>
         <property key="additional-options-write-sla" value="false"/>

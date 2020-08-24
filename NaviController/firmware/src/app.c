@@ -55,7 +55,7 @@ void APP_Initialize(void) {
     setTimerInterval(&sec, 1000);
     setTimerInterval(&ms100, 100);
     setTimerInterval(&ledTime, 50);
-    InitPozyx();
+    //InitPozyx();
 
     /* Turning on the Timer the Runs the System's timers_t */
     DRV_TMR0_Start();
@@ -91,13 +91,13 @@ void APP_Initialize(void) {
     }
     //    handleCANmacro(1<<2, 0);
 
-    //    int y;
-    //    for(y = 0;y<20;y++){
-    //        addObtaclePoint(15, y);
-    //    }
-    //    for(y = 10;y<getWorldWidth();y++){
-    //        addObtaclePoint(35, y);
-    //    }
+        int y;
+        for(y = 0;y<20;y++){
+            addObtaclePoint(y, 15);
+        }
+        for(y = 10;y<getWorldWidth();y++){
+            addObtaclePoint(y, 35);
+        }
 
 
     appData.state = APP_STATE_INIT;

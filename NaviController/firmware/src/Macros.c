@@ -30,8 +30,8 @@ bool autoWaiting = false;
 unsigned char MacroState = 0;
 
 
-point_t pathFrom = {10, 10};
-point_t pathTo = {20, 20};
+point_t pathFrom = {10, 10}; //only for initialization (can't be 0,0): value will be overwritten with current position
+point_t pathTo = {10, 30};
 LL_t *RobotPath;
 
 
@@ -116,8 +116,11 @@ void testPathAlgorithm() {
 
     RobotPath = LL_init();
 
-    receivePozyx();
-    pathFrom = getLocation();
+    //receivePozyx();
+    pathFrom = (point_t) {(int16_t) (getCANFastData(FT_GLOBAL, getGBL_Data(GYRO_CONTROLLER, DATA_1))/ 100), (int16_t) (getCANFastData(FT_GLOBAL, getGBL_Data(GYRO_CONTROLLER, DATA_2)) / 100)};
+    //pathFrom = getLocation();
+    printf("testPathAlgorithm x: %d ", pathFrom.x);
+    printf("y: %d\n", pathFrom.y);
     getPolarPath(RobotPath, pathFrom, pathTo);
     //    addStopToPath((point_t) {
     //        100, 100
@@ -154,8 +157,10 @@ bool RunPath(int nan) {
                 pathSteps = DRIVE;
             }
         }
-        receivePozyx();
-        myHeading = getPozyxHeading();
+//        receivePozyx();
+//        myHeading = getPozyxHeading();
+        myHeading = getCANFastData(FT_GLOBAL, getGBL_Data(GYRO_CONTROLLER, DATA_0));
+        printf("RunPath h: %d\n", myHeading);
         switch (pathSteps) {
             case DRIVE:
                 /* Getting the next point in the path to go to */
@@ -220,8 +225,10 @@ bool FullAuto(int nan) {
             break;
         case PreDriveDig:
             RobotPath = LL_init();
-            receivePozyx();
-            pathFrom = getLocation();
+//            receivePozyx();
+//            pathFrom = getLocation();
+            pathFrom = (point_t) {(int16_t) (getCANFastData(FT_GLOBAL, getGBL_Data(GYRO_CONTROLLER, DATA_1))/ 100), (int16_t) (getCANFastData(FT_GLOBAL, getGBL_Data(GYRO_CONTROLLER, DATA_2)) / 100)};
+
             
             getPolarPath(RobotPath, pathFrom, pathTo);
             break;

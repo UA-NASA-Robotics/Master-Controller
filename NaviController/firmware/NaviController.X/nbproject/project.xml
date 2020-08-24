@@ -19,6 +19,7 @@
                 <sourceRootElem>..\src</sourceRootElem>
                 <sourceRootElem>..\src\default</sourceRootElem>
                 <sourceRootElem>..\src\system_config\default</sourceRootElem>
+                <sourceRootElem>../../../../R_MotorController/MotorController/firmware/src</sourceRootElem>
             </sourceRootList>
             <confList>
                 <confElem>
